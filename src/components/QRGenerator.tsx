@@ -31,7 +31,8 @@ export default function QRGenerator() {
   const [emailAddr, setEmailAddr] = useState("");
   const [emailSubject, setEmailSubject] = useState("");
   const [emailBody, setEmailBody] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageUploadedUrl, setImageUploadedUrl] = useState("");
+  const [imageUploading, setImageUploading] = useState(false);
   const [fgColor, setFgColor] = useState("#000000");
   const [bgColor, setBgColor] = useState("#ffffff");
   const [size, setSize] = useState(256);
@@ -54,11 +55,27 @@ export default function QRGenerator() {
       case "email":
         return `https://qrwing.vercel.app/mail?to=${encodeURIComponent(emailAddr)}&subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
       case "image":
-        return imageUrl;
+        return imageUploadedUrl;
       default:
         return "";
     }
-  }, [qrType, url, text, wifiSsid, wifiPass, wifiEnc, vcardName, vcardPhone, vcardEmail, emailAddr, emailSubject, emailBody, imageUrl]);
+  }, [qrType, url, text, wifiSsid, wifiPass, wifiEnc, vcardName, vcardPhone, vcardEmail, emailAddr, emailSubject, emailBody, imageUploadedUrl]);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageUploading(true);
+    try {
+      const form = new FormData();
+      form.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: form });
+      const data = await res.json();
+      setImageUploadedUrl(data.url);
+    } catch {
+      setImageUploading(false);
+    }
+    setImageUploading(false);
+  };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -234,13 +251,37 @@ export default function QRGenerator() {
           )}
 
           {qrType === "image" && (
-            <input
-              type="url"
-              placeholder={t("placeImageUrl")}
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none"
-            />
+            <div className="space-y-3">
+              <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl cursor-pointer hover:border-purple-400 transition-colors bg-white dark:bg-gray-800">
+                {imageUploading ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+                    <span className="text-sm text-gray-500">Subiendo...</span>
+                  </div>
+                ) : imageUploadedUrl ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <img src={imageUploadedUrl} alt="Uploaded preview" className="h-24 w-auto rounded-lg object-contain" />
+                    <span className="text-xs text-green-600 font-medium">¡Imagen subida!</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2 text-gray-400">
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-sm">{t("placeImageUrl")}</span>
+                  </div>
+                )}
+                <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+              </label>
+              {imageUploadedUrl && (
+                <button
+                  onClick={() => setImageUploadedUrl("")}
+                  className="text-xs text-red-500 hover:text-red-600"
+                >
+                  Quitar imagen
+                </button>
+              )}
+            </div>
           )}
 
           <details className="text-sm">

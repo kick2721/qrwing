@@ -11,6 +11,7 @@
   "dependencies": {
     "@stripe/react-stripe-js": "^6.6.0",
     "@stripe/stripe-js": "^9.8.0",
+    "@vercel/blob": "^2.4.1",
     "next": "16.2.9",
     "qrcode": "^1.5.4",
     "qrcode.react": "^4.2.0",
