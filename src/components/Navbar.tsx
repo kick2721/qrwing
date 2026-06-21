@@ -3,11 +3,14 @@
 import Link from "next/link";
 import { useState } from "react";
 import Image from "next/image";
+import { useSession, signIn, signOut } from "next-auth/react";
 import { useLang } from "@/context/LangContext";
 import LangSwitcher from "./LangSwitcher";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [userMenu, setUserMenu] = useState(false);
+  const { data: session } = useSession();
   const { t } = useLang();
 
   return (
@@ -24,7 +27,42 @@ export default function Navbar() {
           <Link href="/pricing" className="hover:text-purple-600 transition-colors">
             {t("navPricing")}
           </Link>
+          {session?.user && (
+            <Link href="/dashboard" className="hover:text-purple-600 transition-colors">
+              Dashboard
+            </Link>
+          )}
           <LangSwitcher />
+          {session?.user ? (
+            <div className="relative">
+              <button onClick={() => setUserMenu(!userMenu)} className="flex items-center gap-2 hover:opacity-80">
+                {session.user.image ? (
+                  <Image src={session.user.image} alt="" width={32} height={32} className="rounded-full" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center text-xs font-bold">
+                    {session.user.name?.charAt(0) || "?"}
+                  </div>
+                )}
+              </button>
+              {userMenu && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl shadow-lg py-2 text-sm">
+                  <div className="px-4 py-2 text-gray-500 border-b border-gray-100 dark:border-gray-800 truncate">
+                    {session.user.email}
+                  </div>
+                  <Link href="/dashboard" onClick={() => setUserMenu(false)} className="block px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800">
+                    Dashboard
+                  </Link>
+                  <button onClick={() => signOut()} className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-50 dark:hover:bg-gray-800">
+                    Cerrar sesión
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button onClick={() => signIn("google")} className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">
+              {t("navLogin")}
+            </button>
+          )}
         </div>
 
         <div className="sm:hidden flex items-center gap-2">
@@ -49,6 +87,20 @@ export default function Navbar() {
           <Link href="/pricing" onClick={() => setOpen(false)} className="hover:text-purple-600">
             {t("navPricing")}
           </Link>
+          {session?.user ? (
+            <>
+              <Link href="/dashboard" onClick={() => setOpen(false)} className="hover:text-purple-600">
+                Dashboard
+              </Link>
+              <button onClick={() => signOut()} className="text-left text-red-600 hover:text-red-700">
+                Cerrar sesión
+              </button>
+            </>
+          ) : (
+            <button onClick={() => signIn("google")} className="text-left hover:text-purple-600">
+              {t("navLogin")}
+            </button>
+          )}
         </div>
       )}
     </nav>

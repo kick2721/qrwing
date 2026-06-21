@@ -30,6 +30,7 @@ const t = {
   ar: {
     navHome: "الرئيسية",
     navPricing: "الأسعار",
+    navLogin: "تسجيل الدخول",
     heroTitle: "أنشئ رموز QR",
     heroSubtitle: "احترافية في ثوانٍ",
     heroDesc: "أنشئ رموز QR مجانية بدون تسجيل. خصص الألوان، أضف شعارك، وحمّلها بصيغة PNG أو SVG.",
@@ -111,6 +112,7 @@ const t = {
   de: {
     navHome: "Start",
     navPricing: "Preise",
+    navLogin: "Anmelden",
     heroTitle: "Erstelle QR-Codes",
     heroSubtitle: "professionell in Sekunden",
     heroDesc: "Erstelle kostenlose QR-Codes ohne Anmeldung. Passe Farben an, füge dein Logo hinzu und lade sie als PNG oder SVG herunter.",
@@ -192,6 +194,7 @@ const t = {
   el: {
     navHome: "Αρχική",
     navPricing: "Τιμές",
+    navLogin: "Σύνδεση",
     heroTitle: "Δημιουργήστε QR codes",
     heroSubtitle: "επαγγελματικά σε δευτερόλεπτα",
     heroDesc: "Δημιουργήστε δωρεάν QR codes χωρίς εγγραφή. Προσαρμόστε χρώματα, προσθέστε λογότυπο και κατεβάστε ως PNG ή SVG.",
@@ -273,6 +276,7 @@ const t = {
   en: {
     navHome: "Home",
     navPricing: "Pricing",
+    navLogin: "Sign in",
     heroTitle: "Create QR codes",
     heroSubtitle: "professional in seconds",
     heroDesc: "Generate free QR codes without registration. Customize colors, add your logo, and download as PNG or SVG.",
@@ -354,6 +358,7 @@ const t = {
   es: {
     navHome: "Inicio",
     navPricing: "Precios",
+    navLogin: "Iniciar sesión",
     heroTitle: "Crea QR codes",
     heroSubtitle: "profesionales en segundos",
     heroDesc: "Genera códigos QR gratis sin registro. Personaliza colores, añade tu logo y descarga en PNG o SVG.",
@@ -435,6 +440,7 @@ const t = {
   fr: {
     navHome: "Accueil",
     navPricing: "Tarifs",
+    navLogin: "Connexion",
     heroTitle: "Créez des codes QR",
     heroSubtitle: "professionnels en quelques secondes",
     heroDesc: "Générez des codes QR gratuits sans inscription. Personnalisez les couleurs, ajoutez votre logo et téléchargez en PNG ou SVG.",
@@ -516,6 +522,7 @@ const t = {
   hi: {
     navHome: "होम",
     navPricing: "मूल्य निर्धारण",
+    navLogin: "साइन इन करें",
     heroTitle: "QR कोड बनाएं",
     heroSubtitle: "सेकंडों में पेशेवर",
     heroDesc: "बिना पंजीकरण के मुफ्त QR कोड जनरेट करें। रंग अनुकूलित करें, लोगो जोड़ें और PNG या SVG में डाउनलोड करें।",
@@ -597,6 +604,7 @@ const t = {
   id: {
     navHome: "Beranda",
     navPricing: "Harga",
+    navLogin: "Masuk",
     heroTitle: "Buat kode QR",
     heroSubtitle: "profesional dalam detik",
     heroDesc: "Hasilkan kode QR gratis tanpa registrasi. Sesuaikan warna, tambahkan logo, dan unduh sebagai PNG atau SVG.",
@@ -678,6 +686,7 @@ const t = {
   it: {
     navHome: "Home",
     navPricing: "Prezzi",
+    navLogin: "Accedi",
     heroTitle: "Crea codici QR",
     heroSubtitle: "professionali in secondi",
     heroDesc: "Genera codici QR gratuiti senza registrazione. Personalizza colori, aggiungi il tuo logo e scarica in PNG o SVG.",
@@ -759,6 +768,7 @@ const t = {
   ja: {
     navHome: "ホーム",
     navPricing: "料金",
+    navLogin: "ログイン",
     heroTitle: "QRコードを作成",
     heroSubtitle: "数秒でプロフェッショナル",
     heroDesc: "登録不要で無料のQRコードを生成。色のカスタマイズ、ロゴの追加、PNGやSVGでのダウンロードが可能です。",
@@ -840,6 +850,7 @@ const t = {
   ko: {
     navHome: "홈",
     navPricing: "가격",
+    navLogin: "로그인",
     heroTitle: "QR 코드 만들기",
     heroSubtitle: "몇 초 만에 전문가 수준",
     heroDesc: "등록 없이 무료로 QR 코드를 생성하세요. 색상 커스터마이징, 로고 추가, PNG 또는 SVG로 다운로드 가능합니다.",
@@ -921,6 +932,7 @@ const t = {
   nl: {
     navHome: "Home",
     navPricing: "Prijzen",
+    navLogin: "Inloggen",
     heroTitle: "Maak QR-codes",
     heroSubtitle: "professioneel in seconden",
     heroDesc: "Genereer gratis QR-codes zonder registratie. Pas kleuren aan, voeg je logo toe en download als PNG of SVG.",
@@ -1002,6 +1014,7 @@ const t = {
   pl: {
     navHome: "Strona główna",
     navPricing: "Cennik",
+    navLogin: "Zaloguj się",
     heroTitle: "Twórz kody QR",
     heroSubtitle: "profesjonalne w kilka sekund",
     heroDesc: "Generuj darmowe kody QR bez rejestracji. Dostosuj kolory, dodaj logo i pobierz jako PNG lub SVG.",
@@ -1083,6 +1096,7 @@ const t = {
   pt: {
     navHome: "Início",
     navPricing: "Preços",
+    navLogin: "Entrar",
     heroTitle: "Crie QR codes",
     heroSubtitle: "profissionais em segundos",
     heroDesc: "Gere códigos QR grátis sem registro. Personalize cores, adicione seu logotipo e baixe em PNG ou SVG.",
@@ -1164,6 +1178,7 @@ const t = {
   ro: {
     navHome: "Acasă",
     navPricing: "Prețuri",
+    navLogin: "Autentificare",
     heroTitle: "Creează coduri QR",
     heroSubtitle: "profesionale în câteva secunde",
     heroDesc: "Generează coduri QR gratuite fără înregistrare. Personalizează culori, adaugă logo și descarcă ca PNG sau SVG.",
@@ -1245,6 +1260,7 @@ const t = {
   ru: {
     navHome: "Главная",
     navPricing: "Цены",
+    navLogin: "Войти",
     heroTitle: "Создавайте QR-коды",
     heroSubtitle: "профессионально за секунды",
     heroDesc: "Создавайте бесплатные QR-коды без регистрации. Настраивайте цвета, добавляйте логотип и скачивайте в PNG или SVG.",
@@ -1326,6 +1342,7 @@ const t = {
   sv: {
     navHome: "Hem",
     navPricing: "Priser",
+    navLogin: "Logga in",
     heroTitle: "Skapa QR-koder",
     heroSubtitle: "professionella på sekunder",
     heroDesc: "Skapa gratis QR-koder utan registrering. Anpassa färger, lägg till din logotyp och ladda ner som PNG eller SVG.",
@@ -1407,6 +1424,7 @@ const t = {
   th: {
     navHome: "หน้าแรก",
     navPricing: "ราคา",
+    navLogin: "เข้าสู่ระบบ",
     heroTitle: "สร้าง QR codes",
     heroSubtitle: "มืออาชีพในไม่กี่วินาที",
     heroDesc: "สร้าง QR codes ฟรีไม่ต้องสมัครสมาชิก ปรับแต่งสี เพิ่มโลโก้ และดาวน์โหลดเป็น PNG หรือ SVG",
@@ -1488,6 +1506,7 @@ const t = {
   tr: {
     navHome: "Ana Sayfa",
     navPricing: "Fiyatlar",
+    navLogin: "Giriş yap",
     heroTitle: "QR kodlar oluşturun",
     heroSubtitle: "saniyeler içinde profesyonel",
     heroDesc: "Kayıt olmadan ücretsiz QR kodları oluşturun. Renkleri özelleştirin, logonuzu ekleyin ve PNG veya SVG olarak indirin.",
@@ -1569,6 +1588,7 @@ const t = {
   uk: {
     navHome: "Головна",
     navPricing: "Ціни",
+    navLogin: "Увійти",
     heroTitle: "Створюйте QR-коди",
     heroSubtitle: "професійно за секунди",
     heroDesc: "Створюйте безкоштовні QR-коди без реєстрації. Налаштовуйте кольори, додавайте логотип і завантажуйте у PNG або SVG.",
@@ -1650,6 +1670,7 @@ const t = {
   vi: {
     navHome: "Trang chủ",
     navPricing: "Bảng giá",
+    navLogin: "Đăng nhập",
     heroTitle: "Tạo mã QR",
     heroSubtitle: "chuyên nghiệp trong vài giây",
     heroDesc: "Tạo mã QR miễn phí không cần đăng ký. Tùy chỉnh màu sắc, thêm logo và tải xuống dưới dạng PNG hoặc SVG.",
@@ -1731,6 +1752,7 @@ const t = {
   "zh-CN": {
     navHome: "首页",
     navPricing: "价格",
+    navLogin: "登录",
     heroTitle: "创建二维码",
     heroSubtitle: "数秒内专业生成",
     heroDesc: "无需注册，免费生成二维码。自定义颜色、添加Logo，以PNG或SVG格式下载。",
@@ -1812,6 +1834,7 @@ const t = {
   "zh-TW": {
     navHome: "首頁",
     navPricing: "價格",
+    navLogin: "登入",
     heroTitle: "建立 QR Code",
     heroSubtitle: "幾秒內專業生成",
     heroDesc: "無需註冊，免費產生 QR Code。自訂顏色、加入 Logo，以 PNG 或 SVG 格式下載。",
