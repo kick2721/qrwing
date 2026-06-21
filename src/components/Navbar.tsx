@@ -14,7 +14,7 @@ export default function Navbar() {
     <nav className="border-b border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-black/80 backdrop-blur-sm sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.svg" alt="QRWing" width={184} height={52} className="h-9 w-auto" priority />
+          <Image src="/logo.svg?v=2" alt="QRWing" width={184} height={52} className="h-9 w-auto" priority />
         </Link>
 
         <div className="hidden sm:flex items-center gap-6 text-sm font-medium">
