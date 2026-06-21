@@ -4,7 +4,7 @@ import { useState, useRef, useCallback } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { useLang } from "@/context/LangContext";
 
-type QrType = "url" | "text" | "wifi" | "vcard" | "email";
+type QrType = "url" | "text" | "wifi" | "vcard" | "email" | "image";
 
 const QR_TYPES: { value: QrType; key: TranslationKey; icon: string }[] = [
   { value: "url", key: "qrTypeUrl", icon: "🔗" },
@@ -12,6 +12,7 @@ const QR_TYPES: { value: QrType; key: TranslationKey; icon: string }[] = [
   { value: "wifi", key: "qrTypeWifi", icon: "📶" },
   { value: "vcard", key: "qrTypeVcard", icon: "👤" },
   { value: "email", key: "qrTypeEmail", icon: "✉️" },
+  { value: "image", key: "qrTypeImage", icon: "🖼️" },
 ];
 
 import type { TranslationKey } from "@/lib/i18n";
@@ -30,6 +31,7 @@ export default function QRGenerator() {
   const [emailAddr, setEmailAddr] = useState("");
   const [emailSubject, setEmailSubject] = useState("");
   const [emailBody, setEmailBody] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [fgColor, setFgColor] = useState("#000000");
   const [bgColor, setBgColor] = useState("#ffffff");
   const [size, setSize] = useState(256);
@@ -50,11 +52,13 @@ export default function QRGenerator() {
       case "vcard":
         return `BEGIN:VCARD\nVERSION:3.0\nFN:${vcardName}\nTEL:${vcardPhone}\nEMAIL:${vcardEmail}\nEND:VCARD`;
       case "email":
-        return `mailto:${emailAddr}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+        return `MATMSG:TO:${emailAddr};SUB:${emailSubject};BODY:${emailBody};;`;
+      case "image":
+        return imageUrl;
       default:
         return "";
     }
-  }, [qrType, url, text, wifiSsid, wifiPass, wifiEnc, vcardName, vcardPhone, vcardEmail, emailAddr, emailSubject, emailBody]);
+  }, [qrType, url, text, wifiSsid, wifiPass, wifiEnc, vcardName, vcardPhone, vcardEmail, emailAddr, emailSubject, emailBody, imageUrl]);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -162,15 +166,18 @@ export default function QRGenerator() {
                 onChange={(e) => setWifiPass(e.target.value)}
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none"
               />
-              <select
-                value={wifiEnc}
-                onChange={(e) => setWifiEnc(e.target.value as typeof wifiEnc)}
-                className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none"
-              >
-                <option value="WPA">{t("wifiWpa")}</option>
-                <option value="WEP">{t("wifiWep")}</option>
-                <option value="nopass">{t("wifiNone")}</option>
-              </select>
+              <div>
+                <select
+                  value={wifiEnc}
+                  onChange={(e) => setWifiEnc(e.target.value as typeof wifiEnc)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none"
+                >
+                  <option value="WPA">{t("wifiWpa")}</option>
+                  <option value="WEP">{t("wifiWep")}</option>
+                  <option value="nopass">{t("wifiNone")}</option>
+                </select>
+                <p className="text-xs text-gray-400 mt-1.5">{t("wifiHelp")}</p>
+              </div>
             </div>
           )}
 
@@ -224,6 +231,16 @@ export default function QRGenerator() {
                 className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none resize-none"
               />
             </div>
+          )}
+
+          {qrType === "image" && (
+            <input
+              type="url"
+              placeholder={t("placeImageUrl")}
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none"
+            />
           )}
 
           <details className="text-sm">
