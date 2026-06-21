@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { QRCodeCanvas } from "qrcode.react";
 import { useLang } from "@/context/LangContext";
+import Link from "next/link";
 
 type QrType = "url" | "text" | "wifi" | "vcard" | "email" | "image";
 
@@ -34,12 +35,51 @@ export default function QRGenerator() {
   const [imageUploadedUrl, setImageUploadedUrl] = useState("");
   const [imageUploading, setImageUploading] = useState(false);
   const [imageError, setImageError] = useState("");
+  const [trialEnd, setTrialEnd] = useState<number | null>(null);
+  const [trialTimeLeft, setTrialTimeLeft] = useState("");
   const [fgColor, setFgColor] = useState("#000000");
   const [bgColor, setBgColor] = useState("#ffffff");
   const [size, setSize] = useState(256);
   const [logo, setLogo] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("qrwing-trial-end");
+    if (stored) {
+      const end = parseInt(stored, 10);
+      if (Date.now() < end) {
+        setTrialEnd(end);
+      } else {
+        localStorage.removeItem("qrwing-trial-end");
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!trialEnd) return;
+    const update = () => {
+      const left = trialEnd - Date.now();
+      if (left <= 0) {
+        setTrialTimeLeft("");
+        setTrialEnd(null);
+        localStorage.removeItem("qrwing-trial-end");
+        return;
+      }
+      const h = Math.floor(left / 3600000);
+      const m = Math.floor((left % 3600000) / 60000);
+      setTrialTimeLeft(h > 0 ? `${h}h ${m}m` : `${m}min`);
+    };
+    update();
+    const id = setInterval(update, 30000);
+    return () => clearInterval(id);
+  }, [trialEnd]);
+
+  const startTrial = () => {
+    const end = Date.now() + 86400000;
+    localStorage.setItem("qrwing-trial-end", String(end));
+    setTrialEnd(end);
+  };
 
   const qrValue = useCallback(() => {
     switch (qrType) {
@@ -287,35 +327,72 @@ export default function QRGenerator() {
 
           {qrType === "image" && (
             <div className="space-y-3">
-              <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl cursor-pointer hover:border-purple-400 transition-colors bg-white dark:bg-gray-800">
-                {imageUploading ? (
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
-                    <span className="text-sm text-gray-500">Subiendo...</span>
-                  </div>
-                ) : imageUploadedUrl ? (
-                  <div className="flex flex-col items-center gap-2">
-                    <img src={imageUploadedUrl} alt="Uploaded preview" className="h-24 w-auto rounded-lg object-contain" />
-                    <span className="text-xs text-green-600 font-medium">¡Imagen subida!</span>
-                  </div>
-                ) : (
+              {trialEnd ? (
+                <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 rounded-lg text-xs font-medium">
+                  <span>🕐</span>
+                  <span>Prueba gratis — quedan <strong>{trialTimeLeft}</strong></span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-lg text-xs font-medium">
+                  <span>🎁</span>
+                  <span>Prueba gratis de <strong>24 horas</strong>. Al subir tu primera imagen, comienza el plazo.</span>
+                </div>
+              )}
+
+              {trialEnd === null ? (
+                <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl cursor-pointer hover:border-purple-400 transition-colors bg-white dark:bg-gray-800"
+                  onClick={(e) => { if (!trialEnd && trialEnd !== null) e.preventDefault(); }}
+                >
                   <div className="flex flex-col items-center gap-2 text-gray-400">
                     <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <span className="text-sm">{t("placeImageUrl")}</span>
                   </div>
-                )}
-                <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-              </label>
-              {imageError && <p className="text-xs text-red-500">{imageError}</p>}
-              {imageUploadedUrl && (
-                <button
-                  onClick={() => { setImageUploadedUrl(""); setImageError(""); }}
-                  className="text-xs text-red-500 hover:text-red-600"
-                >
-                  Quitar imagen
-                </button>
+                  <input type="file" accept="image/*" onChange={(e) => { startTrial(); handleImageUpload(e); }} className="hidden" />
+                </label>
+              ) : (
+                <>
+                  {imageUploadedUrl ? (
+                    <div className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-green-300 dark:border-green-700 rounded-xl bg-white dark:bg-gray-800">
+                      <img src={imageUploadedUrl} alt="Uploaded preview" className="h-24 w-auto rounded-lg object-contain" />
+                      <span className="text-xs text-green-600 font-medium mt-1">¡Imagen subida!</span>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl cursor-pointer hover:border-purple-400 transition-colors bg-white dark:bg-gray-800">
+                      {imageUploading ? (
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+                          <span className="text-sm text-gray-500">Subiendo...</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-2 text-gray-400">
+                          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <span className="text-sm">{t("placeImageUrl")}</span>
+                        </div>
+                      )}
+                      <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                    </label>
+                  )}
+                  {imageError && <p className="text-xs text-red-500">{imageError}</p>}
+                  {imageUploadedUrl && (
+                    <button onClick={() => { setImageUploadedUrl(""); setImageError(""); }} className="text-xs text-red-500 hover:text-red-600">
+                      Quitar imagen
+                    </button>
+                  )}
+                </>
+              )}
+
+              {trialEnd === null && (
+                <div className="text-center py-6 px-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
+                  <span className="text-2xl">🔒</span>
+                  <p className="text-sm text-gray-500 mt-2 mb-3">Sube imágenes en QR por tiempo limitado</p>
+                  <Link href="/pricing" className="inline-block px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">
+                    Ver planes
+                  </Link>
+                </div>
               )}
             </div>
           )}
