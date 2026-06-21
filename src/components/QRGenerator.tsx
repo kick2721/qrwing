@@ -33,6 +33,7 @@ export default function QRGenerator() {
   const [emailBody, setEmailBody] = useState("");
   const [imageUploadedUrl, setImageUploadedUrl] = useState("");
   const [imageUploading, setImageUploading] = useState(false);
+  const [imageError, setImageError] = useState("");
   const [fgColor, setFgColor] = useState("#000000");
   const [bgColor, setBgColor] = useState("#ffffff");
   const [size, setSize] = useState(256);
@@ -65,16 +66,21 @@ export default function QRGenerator() {
     const file = e.target.files?.[0];
     if (!file) return;
     setImageUploading(true);
+    setImageError("");
+    setImageUploadedUrl("");
     try {
       const form = new FormData();
       form.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: form });
+      if (!res.ok) throw new Error(`Error ${res.status}`);
       const data = await res.json();
+      if (!data.url) throw new Error("No URL returned");
       setImageUploadedUrl(data.url);
-    } catch {
+    } catch (err) {
+      setImageError(err instanceof Error ? err.message : "Error al subir");
+    } finally {
       setImageUploading(false);
     }
-    setImageUploading(false);
   };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -273,9 +279,10 @@ export default function QRGenerator() {
                 )}
                 <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
               </label>
+              {imageError && <p className="text-xs text-red-500">{imageError}</p>}
               {imageUploadedUrl && (
                 <button
-                  onClick={() => setImageUploadedUrl("")}
+                  onClick={() => { setImageUploadedUrl(""); setImageError(""); }}
                   className="text-xs text-red-500 hover:text-red-600"
                 >
                   Quitar imagen
