@@ -237,7 +237,7 @@ export default function QRGenerator() {
               <button
                 key={qt.value}
                 onClick={() => setQrType(qt.value)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-transform active:scale-[0.93] ${
                   qrType === qt.value
                     ? "bg-purple-600 text-white"
                     : "bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
@@ -545,19 +545,19 @@ export default function QRGenerator() {
             <div className="flex flex-wrap gap-2 justify-center">
               <button
                 onClick={() => downloadQR("png")}
-                className="px-5 py-2.5 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-colors"
+                className="px-5 py-2.5 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-transform active:scale-[0.95]"
               >
                 {t("downloadPng")}
               </button>
               <button
                 onClick={() => downloadQR("svg")}
-                className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-transform active:scale-[0.95]"
               >
                 {t("downloadSvg")}
               </button>
               <button
                 onClick={copyToClipboard}
-                className="px-5 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className="px-5 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-transform active:scale-[0.95]"
               >
                 {copied ? t("copied") : t("copy")}
               </button>
@@ -565,7 +565,7 @@ export default function QRGenerator() {
                 <button
                   onClick={saveQR}
                   disabled={saving}
-                  className="px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                  className="px-5 py-2.5 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-transform active:scale-[0.95] disabled:active:scale-100 disabled:opacity-50"
                 >
                   {saving ? t("saving") : saved ? t("saved") : t("save")}
                 </button>

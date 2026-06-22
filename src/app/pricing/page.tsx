@@ -75,7 +75,7 @@ export default function Pricing() {
               ))}
             </ul>
             <button
-              className={`w-full py-2.5 rounded-xl font-medium transition-colors ${
+              className={`w-full py-2.5 rounded-xl font-medium transition-transform active:scale-[0.97] ${
                 plan.featured
                   ? "bg-purple-600 text-white hover:bg-purple-700"
                   : "border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900"

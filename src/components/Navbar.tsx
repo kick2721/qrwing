@@ -36,7 +36,7 @@ export default function Navbar() {
             </Link>
           )}
           <LangSwitcher />
-          <button onClick={toggle} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-lg" aria-label="Toggle theme">
+          <button onClick={toggle} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-transform active:scale-[0.92] text-lg" aria-label="Toggle theme">
             {theme === "dark" ? "☀️" : "🌙"}
           </button>
           {session?.user ? (
@@ -58,14 +58,14 @@ export default function Navbar() {
                   <Link href="/dashboard" onClick={() => setUserMenu(false)} className="block px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800">
                     {t("dashboardTitle")}
                   </Link>
-                  <button onClick={() => signOut()} className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <button onClick={() => signOut()} className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-transform active:scale-[0.97] active:origin-left">
                     {t("signOut")}
                   </button>
                 </div>
               )}
             </div>
           ) : (
-            <button onClick={() => signIn()} className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">
+            <button onClick={() => signIn()} className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm font-medium hover:bg-purple-700 transition-transform active:scale-[0.95]">
               {t("navLogin")}
             </button>
           )}
@@ -73,7 +73,7 @@ export default function Navbar() {
 
         <div className="sm:hidden flex items-center gap-2">
           <LangSwitcher />
-          <button onClick={() => setOpen(!open)} className="p-2" aria-label="Menu">
+          <button onClick={() => setOpen(!open)} className="p-2 transition-transform active:scale-[0.92]" aria-label="Menu">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               {open ? (
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -93,7 +93,7 @@ export default function Navbar() {
           <Link href="/pricing" onClick={() => setOpen(false)} className="hover:text-purple-600">
             {t("navPricing")}
           </Link>
-          <button onClick={toggle} className="text-left hover:text-purple-600">
+          <button onClick={toggle} className="text-left hover:text-purple-600 transition-transform active:scale-[0.97] active:origin-left">
             {theme === "dark" ? t("themeLight") : t("themeDark")}
           </button>
           {session?.user ? (
@@ -101,12 +101,12 @@ export default function Navbar() {
               <Link href="/dashboard" onClick={() => setOpen(false)} className="hover:text-purple-600">
                 {t("dashboardTitle")}
               </Link>
-              <button onClick={() => signOut()} className="text-left text-red-600 hover:text-red-700">
+              <button onClick={() => signOut()} className="text-left text-red-600 hover:text-red-700 transition-transform active:scale-[0.97] active:origin-left">
                 {t("signOut")}
               </button>
             </>
           ) : (
-            <button onClick={() => signIn()} className="text-left hover:text-purple-600">
+            <button onClick={() => signIn()} className="text-left hover:text-purple-600 transition-transform active:scale-[0.97] active:origin-left">
               {t("navLogin")}
             </button>
           )}
