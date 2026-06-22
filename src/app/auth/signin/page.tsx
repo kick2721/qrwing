@@ -11,10 +11,12 @@ export default function SignInPage() {
 
   return (
     <Suspense>
-      <div className="max-w-sm mx-auto px-4 pt-8">
-        <BackToHome />
-      </div>
-      <SignInForm available={available} />
+      <>
+        <div className="max-w-sm mx-auto px-4 pt-8">
+          <BackToHome />
+        </div>
+        <SignInForm available={available} />
+      </>
     </Suspense>
   );
 }
