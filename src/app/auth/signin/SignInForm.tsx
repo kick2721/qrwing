@@ -122,7 +122,9 @@ export default function SignInForm({ available }: { available: ProviderName[] })
 
         <p className="text-xs text-gray-400 text-center mt-6">
           Al iniciar sesión aceptas nuestros{" "}
-          <a href="/tos" className="underline hover:text-gray-600 dark:hover:text-gray-300">términos de uso</a>.
+          <a href="/tos" className="underline hover:text-gray-600 dark:hover:text-gray-300">términos de uso</a>{" "}
+          y{" "}
+          <a href="/privacy" className="underline hover:text-gray-600 dark:hover:text-gray-300">política de privacidad</a>.
         </p>
       </div>
     </div>
