@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import BackToHome from "@/components/BackToHome";
 
 export const metadata: Metadata = {
   title: "Privacy Policy — QRWing",
@@ -7,6 +8,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <main className="max-w-3xl mx-auto px-4 py-16 text-gray-700 dark:text-gray-300">
+      <BackToHome />
       <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-white">Privacy Policy</h1>
       <p className="text-sm text-gray-500 mb-2">Last updated: June 22, 2026</p>
       <p className="text-sm text-gray-500 mb-8">

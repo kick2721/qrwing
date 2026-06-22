@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import BackToHome from "@/components/BackToHome";
 import SignInForm from "./SignInForm";
 
 export default function SignInPage() {
@@ -10,6 +11,9 @@ export default function SignInPage() {
 
   return (
     <Suspense>
+      <div className="max-w-sm mx-auto px-4 pt-8">
+        <BackToHome />
+      </div>
       <SignInForm available={available} />
     </Suspense>
   );
