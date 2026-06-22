@@ -124,7 +124,8 @@ export default function SignInForm({ available }: { available: ProviderName[] })
           Al iniciar sesión aceptas nuestros{" "}
           <a href="/tos" className="underline hover:text-gray-600 dark:hover:text-gray-300">términos de uso</a>{" "}
           y{" "}
-          <a href="/privacy" className="underline hover:text-gray-600 dark:hover:text-gray-300">política de privacidad</a>.
+          <a href="/privacy" className="underline hover:text-gray-600 dark:hover:text-gray-300">política de privacidad</a>.{" "}
+          <a href="/imprint" className="underline hover:text-gray-600 dark:hover:text-gray-300">Aviso legal</a>.
         </p>
       </div>
     </div>

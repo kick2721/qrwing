@@ -13,7 +13,12 @@ export default function Footer() {
           <Logo />
         </div>
         <p>{t("footerDesc")}</p>
-        <p className="mt-3 text-xs">{t("footerLegal")}</p>
+        <nav className="flex justify-center gap-4 mt-3 text-xs">
+          <a href="/privacy" className="hover:text-purple-600 transition">Privacy</a>
+          <a href="/tos" className="hover:text-purple-600 transition">Terms</a>
+          <a href="/imprint" className="hover:text-purple-600 transition">Imprint</a>
+        </nav>
+        <p className="mt-2 text-xs">{t("footerLegal")}</p>
       </div>
     </footer>
   );
