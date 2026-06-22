@@ -1,9 +1,24 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import Nodemailer from "next-auth/providers/nodemailer";
+import GitHub from "next-auth/providers/github";
+import Discord from "next-auth/providers/discord";
+import { Pool } from "pg";
+import PostgresAdapter from "@auth/pg-adapter";
 
-const providers = [
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+});
+
+const providerList = [
   Google,
+  ...(process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET
+    ? [GitHub]
+    : []),
+  ...(process.env.AUTH_DISCORD_ID && process.env.AUTH_DISCORD_SECRET
+    ? [Discord]
+    : []),
   ...(process.env.EMAIL_SERVER
     ? [
         Nodemailer({
@@ -15,13 +30,13 @@ const providers = [
 ];
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers,
-  session: { strategy: "jwt" },
+  adapter: PostgresAdapter(pool),
+  providers: providerList,
   pages: { signIn: "/auth/signin" },
   trustHost: true,
   callbacks: {
-    async session({ session, token }) {
-      if (token.sub) session.user.id = token.sub;
+    async session({ session, user }) {
+      if (user.id) session.user.id = user.id;
       return session;
     },
   },
