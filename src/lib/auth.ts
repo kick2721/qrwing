@@ -18,6 +18,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers,
   session: { strategy: "jwt" },
   pages: { signIn: "/auth/signin" },
+  trustHost: true,
   callbacks: {
     async session({ session, token }) {
       if (token.sub) session.user.id = token.sub;
