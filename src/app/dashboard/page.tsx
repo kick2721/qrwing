@@ -3,11 +3,11 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
+import QRCode from "qrcode";
 
-interface QRCode {
+interface QRCodeData {
   id: string;
   type: string;
   content: string;
@@ -26,7 +26,7 @@ interface ScanStats {
 export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [qrcodes, setQrcodes] = useState<QRCode[]>([]);
+  const [qrcodes, setQrcodes] = useState<QRCodeData[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedQR, setSelectedQR] = useState<string | null>(null);
   const [stats, setStats] = useState<ScanStats | null>(null);
@@ -50,6 +50,30 @@ export default function Dashboard() {
     setStats(await r.json());
   }
 
+  async function downloadQR(qr: QRCodeData, format: "png" | "svg") {
+    if (format === "png") {
+      const url = await QRCode.toDataURL(qr.content, {
+        width: 512,
+        margin: 2,
+        color: { dark: "#111827", light: "#ffffff" },
+      });
+      const link = document.createElement("a");
+      link.download = `qrwing-${qr.label || "qr"}.png`;
+      link.href = url;
+      link.click();
+    } else {
+      const svg = document.querySelector(`#svg-container-${qr.id} svg`) as SVGSVGElement;
+      if (!svg) return;
+      const clone = svg.cloneNode(true) as SVGSVGElement;
+      clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      const blob = new Blob([clone.outerHTML], { type: "image/svg+xml" });
+      const link = document.createElement("a");
+      link.download = `qrwing-${qr.label || "qr"}.svg`;
+      link.href = URL.createObjectURL(blob);
+      link.click();
+    }
+  }
+
   function typeIcon(type: string) {
     const icons: Record<string, string> = { url: "🔗", text: "📝", wifi: "📶", vcard: "👤", email: "📧", image: "🖼️" };
     return icons[type] || "📄";
@@ -71,13 +95,9 @@ export default function Dashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            {session?.user?.name} — {session?.user?.email}
-          </p>
+          <p className="text-gray-500 text-sm mt-1">{session?.user?.name} — {session?.user?.email}</p>
         </div>
-        <Link href="/" className="px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors">
-          + Nuevo QR
-        </Link>
+        <Link href="/" className="px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors">+ Nuevo QR</Link>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -100,9 +120,7 @@ export default function Dashboard() {
           <p className="text-4xl mb-4">🪄</p>
           <h2 className="text-xl font-semibold mb-2">Todavía no tienes QR</h2>
           <p className="text-gray-500 mb-6">Crea tu primer código QR desde la página principal</p>
-          <Link href="/" className="inline-block px-6 py-3 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-colors">
-            Crear QR gratis
-          </Link>
+          <Link href="/" className="inline-block px-6 py-3 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-colors">Crear QR gratis</Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -112,7 +130,9 @@ export default function Dashboard() {
               <div key={qr.id} className={`bg-white dark:bg-gray-900 rounded-2xl border p-4 transition-colors cursor-pointer hover:border-purple-300 dark:hover:border-purple-700 ${selectedQR === qr.id ? "border-purple-500" : "border-gray-200 dark:border-gray-800"}`} onClick={() => viewStats(qr.id)}>
                 <div className="flex items-center gap-4">
                   <div className="w-14 h-14 flex-shrink-0 bg-white rounded-xl p-1 border border-gray-100 dark:border-gray-700">
-                    <QRCodeSVG value={qr.content} size={48} level="L" fgColor="#111827" style={{ width: "100%", height: "100%" }} />
+                    <div id={`svg-container-${qr.id}`} style={{ width: "100%", height: "100%" }}>
+                      <QRCodeSVG value={qr.content} size={48} level="L" fgColor="#111827" style={{ width: "100%", height: "100%" }} />
+                    </div>
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium truncate">{qr.label || qr.content}</p>
@@ -122,9 +142,16 @@ export default function Dashboard() {
                       <span>{new Date(qr.created_at).toLocaleDateString()}</span>
                     </div>
                   </div>
-                  <button onClick={e => { e.stopPropagation(); deleteQR(qr.id); }} className="text-red-400 hover:text-red-600 text-sm px-3 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                    Eliminar
-                  </button>
+                  <div className="flex items-center gap-1">
+                    {selectedQR === qr.id && (
+                      <>
+                        <button onClick={e => { e.stopPropagation(); downloadQR(qr, "png"); }} className="text-gray-400 hover:text-gray-600 text-xs px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">📥 PNG</button>
+                        <button onClick={e => { e.stopPropagation(); downloadQR(qr, "svg"); }} className="text-gray-400 hover:text-gray-600 text-xs px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">📄 SVG</button>
+                        <span className="text-gray-300 dark:text-gray-700">|</span>
+                      </>
+                    )}
+                    <button onClick={e => { e.stopPropagation(); deleteQR(qr.id); }} className="text-red-400 hover:text-red-600 text-sm px-2 py-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Eliminar</button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -136,12 +163,10 @@ export default function Dashboard() {
                 <h3 className="font-semibold">Estadísticas</h3>
                 <button onClick={() => { setSelectedQR(null); setStats(null); }} className="text-gray-400 hover:text-gray-600 text-sm">✕</button>
               </div>
-
               <div className="text-center">
                 <p className="text-4xl font-bold text-purple-600">{stats.total}</p>
                 <p className="text-sm text-gray-400">escaneos totales</p>
               </div>
-
               {stats.daily.length > 0 && (
                 <div>
                   <p className="text-sm font-medium mb-2">Últimos 30 días</p>
@@ -159,7 +184,6 @@ export default function Dashboard() {
                   </div>
                 </div>
               )}
-
               {stats.recent.length > 0 && (
                 <div>
                   <p className="text-sm font-medium mb-2">Escaneos recientes</p>

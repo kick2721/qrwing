@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { QRCodeCanvas } from "qrcode.react";
+import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import { useLang } from "@/context/LangContext";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -166,15 +166,15 @@ export default function QRGenerator() {
   };
 
   const downloadQR = (format: "png" | "svg") => {
-    const canvas = canvasRef.current?.querySelector("canvas");
-    if (!canvas) return;
     if (format === "png") {
+      const canvas = canvasRef.current?.querySelector("canvas");
+      if (!canvas) return;
       const link = document.createElement("a");
       link.download = `qrwing-${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     } else {
-      const svg = canvasRef.current?.querySelector("svg");
+      const svg = document.querySelector("#qr-svg-download svg") as SVGSVGElement;
       if (!svg) return;
       const clone = svg.cloneNode(true) as SVGSVGElement;
       clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
@@ -488,6 +488,7 @@ export default function QRGenerator() {
             className="p-6 bg-white rounded-2xl shadow-lg border border-gray-200"
           >
             {canGenerate ? (
+              <>
               <QRCodeCanvas
                 value={val}
                 size={size}
@@ -506,6 +507,27 @@ export default function QRGenerator() {
                     : undefined
                 }
               />
+              <div id="qr-svg-download" style={{ display: "none" }}>
+                <QRCodeSVG
+                  value={val}
+                  size={size}
+                  fgColor={fgColor}
+                  bgColor={bgColor}
+                  level="H"
+                  includeMargin
+                  imageSettings={
+                    logo
+                      ? {
+                          src: logo,
+                          height: size * 0.25,
+                          width: size * 0.25,
+                          excavate: true,
+                        }
+                      : undefined
+                  }
+                />
+              </div>
+              </>
             ) : (
               <div
                 className="flex items-center justify-center text-gray-400"
