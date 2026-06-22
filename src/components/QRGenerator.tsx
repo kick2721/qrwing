@@ -213,6 +213,7 @@ export default function QRGenerator() {
         body: JSON.stringify({
           type: qrType,
           content: val,
+          redirect_to: val,
           label: val.slice(0, 60),
           config: { fgColor, bgColor, size, logo },
         }),

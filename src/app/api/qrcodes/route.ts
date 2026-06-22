@@ -22,13 +22,21 @@ export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { type, content, label, config } = await req.json();
+  const { type, content, label, config, redirect_to } = await req.json();
   if (!type || !content) return NextResponse.json({ error: "type and content required" }, { status: 400 });
 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://qrwing.vercel.app";
+  const actualContent = redirect_to || content;
+
   const rows = await query(
-    `INSERT INTO public.qrcodes (user_id, type, content, label, config) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-    [session.user.id, type, content, label || "", JSON.stringify(config || {})]
+    `INSERT INTO public.qrcodes (user_id, type, content, label, config, redirect_to) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+    [session.user.id, type, content, label || "", JSON.stringify(config || {}), actualContent]
   );
 
-  return NextResponse.json(rows[0], { status: 201 });
+  const qr = rows[0];
+  const redirectUrl = `${baseUrl}/r/${qr.id}`;
+
+  await query(`UPDATE public.qrcodes SET content = $1 WHERE id = $2`, [redirectUrl, qr.id]);
+
+  return NextResponse.json({ ...qr, content: redirectUrl, redirect_to: actualContent }, { status: 201 });
 }

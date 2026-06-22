@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS public.qrcodes (
   user_id TEXT NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
   type TEXT NOT NULL,
   content TEXT NOT NULL,
+  redirect_to TEXT NOT NULL DEFAULT '',
   label TEXT DEFAULT '',
   config JSONB NOT NULL DEFAULT '{}',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
