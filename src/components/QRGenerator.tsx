@@ -130,7 +130,11 @@ export default function QRGenerator() {
               <button onClick={() => withAuth(() => { saveToServer(); downloadQR("png"); })} className="px-5 py-2.5 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition duration-75 active:scale-[0.95]">{t("downloadPng")}</button>
               <button onClick={() => withAuth(() => { saveToServer(); downloadQR("svg"); })} className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-75 active:scale-[0.95]">{t("downloadSvg")}</button>
               <button onClick={() => withAuth(() => { saveToServer(); copyToClipboard(); })} className="px-5 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-75 active:scale-[0.95]">{copied ? t("copied") : t("copy")}</button>
-              {savedOk && <span className="text-xs text-green-600 font-medium">{t("saved")}</span>}
+              {savedOk && (
+                <a href="/dashboard" className="text-xs text-green-600 font-medium hover:underline">
+                  {t("saved")} — {t("viewDashboard")}
+                </a>
+              )}
               {saveError === "error" && <span className="text-xs text-red-500 font-medium">{t("saveError")}</span>}
               {saveError === "limit" && (
                 <div className="w-full bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-xl p-4 text-center">
