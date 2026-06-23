@@ -43,10 +43,12 @@ export default function Dashboard() {
     if (status === "unauthenticated") router.push("/");
     if (status !== "authenticated") return;
     fetch("/api/qrcodes").then(r => r.json()).then(d => {
-      setQrcodes(d.qrcodes || []);
+      const codes = d.qrcodes || [];
+      setQrcodes(codes);
       setPlan(d.plan || "free");
       setQrCount(d.qrCount || 0);
       setQrLimit(d.qrLimit || FREE_MAX_QR);
+      if (codes.length > 0) { setSelectedQR(codes[0].id); if ((d.plan || "free") !== "pro") setStatsBlocked(true); }
     }).catch(() => {}).finally(() => setLoading(false));
   }, [status, router]);
 
@@ -168,7 +170,7 @@ export default function Dashboard() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className={`${selectedQR ? "lg:col-span-2" : "lg:col-span-3"} space-y-4`}>
+          <div className="lg:col-span-2 space-y-4">
             <h2 className="text-lg font-semibold">{t("dashboardMyQRs")}</h2>
             {qrcodes.map(qr => (
               <div key={qr.id} className={`bg-white dark:bg-gray-900 rounded-2xl border p-4 transition-colors cursor-pointer hover:border-purple-300 dark:hover:border-purple-700 ${selectedQR === qr.id ? "border-purple-500" : "border-gray-200 dark:border-gray-800"}`} onClick={() => viewStats(qr.id)}>
@@ -201,11 +203,10 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {selectedQR && statsBlocked && (
+          {statsBlocked ? (
             <div className="relative bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 space-y-5 overflow-hidden">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">{t("dashboardStats")}</h3>
-                <button onClick={() => { setSelectedQR(null); setStats(null); setStatsBlocked(false); }} className="text-gray-400 hover:text-gray-600 text-sm transition duration-75 active:scale-[0.85]">✕</button>
               </div>
               <div className="text-center opacity-40">
                 <p className="text-4xl font-bold text-purple-600">—</p>
@@ -240,13 +241,10 @@ export default function Dashboard() {
                 <span className="mt-3 px-5 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium group-hover:bg-purple-700 transition-colors">{t("upgradeToPro")}</span>
               </a>
             </div>
-          )}
-
-          {selectedQR && stats && (
+          ) : selectedQR && stats ? (
             <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 space-y-5">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold">{t("dashboardStats")}</h3>
-                <button onClick={() => { setSelectedQR(null); setStats(null); }} className="text-gray-400 hover:text-gray-600 text-sm transition duration-75 active:scale-[0.85]">✕</button>
               </div>
               <div className="text-center">
                 <p className="text-4xl font-bold text-purple-600">{stats.total}</p>
@@ -282,6 +280,10 @@ export default function Dashboard() {
                   </div>
                 </div>
               )}
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5 flex items-center justify-center">
+              <p className="text-gray-400 text-sm">{t("dashboardSelectQR")}</p>
             </div>
           )}
         </div>
