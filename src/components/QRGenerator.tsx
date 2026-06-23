@@ -225,8 +225,14 @@ export default function QRGenerator() {
         setSaveError("limit");
         return;
       }
+      if (!r.ok) {
+        setSaveError("error");
+        return;
+      }
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+    } catch {
+      setSaveError("error");
     } finally {
       setSaving(false);
     }

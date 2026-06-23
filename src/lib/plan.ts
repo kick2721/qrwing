@@ -6,10 +6,16 @@ export async function getUserPlan(): Promise<{ plan: string; qrCount: number; qr
   const session = await auth();
   if (!session?.user?.id) return { plan: "free", qrCount: 0, qrLimit: 0 };
 
-  const [user] = await query(`SELECT plan FROM public.users WHERE id = $1`, [session.user.id]);
+  let plan = "free";
+  try {
+    const [user] = await query(`SELECT plan FROM public.users WHERE id = $1`, [session.user.id]);
+    plan = user?.plan || "free";
+  } catch {
+    plan = "free";
+  }
+
   const [count] = await query(`SELECT COUNT(*)::int AS count FROM public.qrcodes WHERE user_id = $1`, [session.user.id]);
 
-  const plan = user?.plan || "free";
   return {
     plan,
     qrCount: count?.count || 0,
