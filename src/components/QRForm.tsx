@@ -76,6 +76,26 @@ export default function QRForm({ initialValues, onChange, onSubmit, submitLabel,
   const [trialTimeLeft, setTrialTimeLeft] = useState("");
 
   useEffect(() => {
+    if (!initialValues) return;
+    if (initialValues.type) setQrType(initialValues.type);
+    if (initialValues.url !== undefined) setUrl(initialValues.url);
+    if (initialValues.text !== undefined) setText(initialValues.text);
+    if (initialValues.wifiSsid !== undefined) setWifiSsid(initialValues.wifiSsid);
+    if (initialValues.wifiPass !== undefined) setWifiPass(initialValues.wifiPass);
+    if (initialValues.wifiEnc) setWifiEnc(initialValues.wifiEnc);
+    if (initialValues.vcardName !== undefined) setVcardName(initialValues.vcardName);
+    if (initialValues.vcardPhone !== undefined) setVcardPhone(initialValues.vcardPhone);
+    if (initialValues.vcardEmail !== undefined) setVcardEmail(initialValues.vcardEmail);
+    if (initialValues.emailAddr !== undefined) setEmailAddr(initialValues.emailAddr);
+    if (initialValues.emailSubject !== undefined) setEmailSubject(initialValues.emailSubject);
+    if (initialValues.emailBody !== undefined) setEmailBody(initialValues.emailBody);
+    if (initialValues.fgColor) setFgColor(initialValues.fgColor);
+    if (initialValues.bgColor) setBgColor(initialValues.bgColor);
+    if (initialValues.size) setSize(initialValues.size);
+    if (initialValues.logo !== undefined) setLogo(initialValues.logo);
+  }, [initialValues]);
+
+  useEffect(() => {
     const stored = localStorage.getItem("qrwing-trial-end");
     if (stored) {
       const end = parseInt(stored, 10);

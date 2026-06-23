@@ -5,7 +5,7 @@ import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import { useLang } from "@/context/LangContext";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import QRForm, { QRFormData } from "./QRForm";
+import QRForm, { type QRFormData } from "./QRForm";
 import { FREE_MAX_QR } from "@/lib/constants";
 
 const STORAGE_KEY = "qrwing_last_qr";
@@ -20,6 +20,7 @@ export default function QRGenerator() {
   const [copied, setCopied] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+  const [restoredForm, setRestoredForm] = useState<Record<string, any> | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,6 +29,7 @@ export default function QRGenerator() {
       if (saved) {
         const parsed = JSON.parse(saved);
         setQrData(parsed);
+        setRestoredForm(parsed);
         sessionStorage.removeItem(STORAGE_KEY);
       }
     } catch {}
@@ -115,7 +117,7 @@ export default function QRGenerator() {
     <div className="max-w-4xl mx-auto">
       <div className="grid md:grid-cols-2 gap-8">
         <div>
-          <QRForm onChange={setQrData} onSubmit={saveQR} submitLabel={t("save")} saving={saving} />
+          <QRForm key={restoredForm ? "restored" : "fresh"} initialValues={restoredForm ? { type: restoredForm.type, fgColor: restoredForm.config?.fgColor, bgColor: restoredForm.config?.bgColor, size: restoredForm.config?.size, logo: restoredForm.config?.logo, ...(restoredForm.type === "text" ? { text: restoredForm.content } : {}), ...(restoredForm.type === "url" ? { url: restoredForm.content } : {}) } : undefined} onChange={setQrData} onSubmit={saveQR} submitLabel={t("save")} saving={saving} />
         </div>
 
         <div className="flex flex-col items-center justify-center gap-4">
