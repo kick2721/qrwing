@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import { useLang } from "@/context/LangContext";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import QRForm, { type QRFormData } from "./QRForm";
 import { FREE_MAX_QR } from "@/lib/constants";
 
@@ -13,8 +12,6 @@ const STORAGE_KEY = "qrwing_last_qr";
 export default function QRGenerator() {
   const { t } = useLang();
   const { data: session } = useSession();
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [qrData, setQrData] = useState<QRFormData | null>(null);
   const [copied, setCopied] = useState(false);
@@ -51,31 +48,24 @@ export default function QRGenerator() {
     window.location.href = "/auth/signin";
   };
 
-  const saveQR = async (data: QRFormData) => {
-    if (!session?.user) { handleSignIn(); return; }
-    if (!data.hasValues) return;
-    setSaving(true);
-    setSaveError("");
+  const saveQRSilently = async () => {
+    if (!qrData?.hasValues) return;
     try {
       const r = await fetch("/api/qrcodes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          type: data.type,
-          content: data.content,
-          redirect_to: data.redirect_to,
-          label: data.label,
-          config: data.config,
+          type: qrData.type,
+          content: qrData.content,
+          redirect_to: qrData.redirect_to,
+          label: qrData.label,
+          config: qrData.config,
         }),
       });
-      if (r.status === 402) { setSaveError("limit"); return; }
-      if (!r.ok) { setSaveError("error"); return; }
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+      if (r.status === 402) setSaveError("limit");
+      else if (!r.ok) setSaveError("error");
     } catch {
       setSaveError("error");
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -117,7 +107,7 @@ export default function QRGenerator() {
     <div className="max-w-4xl mx-auto">
       <div className="grid md:grid-cols-2 gap-8">
         <div>
-          <QRForm key={restoredForm ? "restored" : "fresh"} initialValues={restoredForm ? { type: restoredForm.type, fgColor: restoredForm.config?.fgColor, bgColor: restoredForm.config?.bgColor, size: restoredForm.config?.size, logo: restoredForm.config?.logo, ...(restoredForm.type === "text" ? { text: restoredForm.content } : {}), ...(restoredForm.type === "url" ? { url: restoredForm.content } : {}) } : undefined} onChange={setQrData} onSubmit={saveQR} submitLabel={t("save")} saving={saving} />
+          <QRForm key={restoredForm ? "restored" : "fresh"} initialValues={restoredForm ? { type: restoredForm.type, fgColor: restoredForm.config?.fgColor, bgColor: restoredForm.config?.bgColor, size: restoredForm.config?.size, logo: restoredForm.config?.logo, ...(restoredForm.type === "text" ? { text: restoredForm.content } : {}), ...(restoredForm.type === "url" ? { url: restoredForm.content } : {}) } : undefined} onChange={setQrData} />
         </div>
 
         <div className="flex flex-col items-center justify-center gap-4">
@@ -140,9 +130,9 @@ export default function QRGenerator() {
 
           {qrData?.hasValues && (
             <div className="flex flex-wrap gap-2 justify-center">
-              <button onClick={() => withAuth(() => downloadQR("png"))} className="px-5 py-2.5 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition duration-75 active:scale-[0.95]">{t("downloadPng")}</button>
-              <button onClick={() => withAuth(() => downloadQR("svg"))} className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-75 active:scale-[0.95]">{t("downloadSvg")}</button>
-              <button onClick={() => withAuth(copyToClipboard)} className="px-5 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-75 active:scale-[0.95]">{copied ? t("copied") : t("copy")}</button>
+              <button onClick={() => withAuth(() => { saveQRSilently(); downloadQR("png"); })} className="px-5 py-2.5 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition duration-75 active:scale-[0.95]">{t("downloadPng")}</button>
+              <button onClick={() => withAuth(() => { saveQRSilently(); downloadQR("svg"); })} className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-75 active:scale-[0.95]">{t("downloadSvg")}</button>
+              <button onClick={() => withAuth(() => { saveQRSilently(); copyToClipboard(); })} className="px-5 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-75 active:scale-[0.95]">{copied ? t("copied") : t("copy")}</button>
               {saveError === "limit" && (
                 <div className="w-full bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-xl p-4 text-center">
                   <p className="text-sm font-medium text-purple-800 dark:text-purple-200">{t("saveLimitTitle")} <strong>{FREE_MAX_QR} {t("saveLimitQr")}</strong></p>
