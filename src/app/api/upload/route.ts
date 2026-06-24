@@ -1,6 +1,7 @@
 import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { getUserPlan } from "@/lib/plan";
 
 const ALLOWED_MIME: Record<string, string> = {
   "image/png": "png",
@@ -13,6 +14,9 @@ const MAX_SIZE = 5 * 1024 * 1024;
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { plan } = await getUserPlan();
+  if (plan !== "pro") return NextResponse.json({ error: "Pro plan required" }, { status: 402 });
 
   const form = await request.formData();
   const file = form.get("file") as File | null;

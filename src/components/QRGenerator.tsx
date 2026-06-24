@@ -18,7 +18,13 @@ export default function QRGenerator() {
   const [copied, setCopied] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [restoredForm, setRestoredForm] = useState<Record<string, any> | null>(null);
+  const [plan, setPlan] = useState("free");
   const canvasRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!session?.user) return;
+    fetch("/api/user/plan").then(r => r.json()).then(d => { if (d.plan) setPlan(d.plan); }).catch(() => {});
+  }, [session]);
 
   useEffect(() => {
     try {
@@ -104,7 +110,7 @@ export default function QRGenerator() {
     <div className="max-w-4xl mx-auto">
       <div className="grid md:grid-cols-2 gap-8">
         <div>
-          <QRForm key={restoredForm ? "restored" : "fresh"} initialValues={restoredForm ? { type: restoredForm.type, fgColor: restoredForm.config?.fgColor, bgColor: restoredForm.config?.bgColor, size: restoredForm.config?.size, logo: restoredForm.config?.logo, ...(restoredForm.type === "text" ? { text: restoredForm.content } : {}), ...(restoredForm.type === "url" ? { url: restoredForm.content } : {}) } : undefined} onChange={setQrData} />
+          <QRForm key={restoredForm ? "restored" : "fresh"} plan={plan} initialValues={restoredForm ? { type: restoredForm.type, fgColor: restoredForm.config?.fgColor, bgColor: restoredForm.config?.bgColor, size: restoredForm.config?.size, logo: restoredForm.config?.logo, ...(restoredForm.type === "text" ? { text: restoredForm.content } : {}), ...(restoredForm.type === "url" ? { url: restoredForm.content } : {}) } : undefined} onChange={setQrData} />
         </div>
 
         <div className="flex flex-col items-center justify-center gap-4">

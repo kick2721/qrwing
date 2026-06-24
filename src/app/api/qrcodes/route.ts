@@ -38,8 +38,17 @@ export async function POST(req: Request) {
   if (!VALID_TYPES.includes(type)) return NextResponse.json({ error: "Invalid type" }, { status: 400 });
 
   const { plan, qrCount, qrLimit } = await getUserPlan();
-  if (plan === "free" && qrCount >= qrLimit) {
-    return NextResponse.json({ error: "Plan limit reached", plan, qrCount, qrLimit }, { status: 402 });
+  if (plan === "free") {
+    if (qrCount >= qrLimit) {
+      return NextResponse.json({ error: "Plan limit reached", plan, qrCount, qrLimit }, { status: 402 });
+    }
+    if (type === "image") {
+      return NextResponse.json({ error: "Image QR is a Pro feature" }, { status: 402 });
+    }
+    const parsedConfig = typeof config === "string" ? JSON.parse(config) : config;
+    if (parsedConfig?.logo) {
+      return NextResponse.json({ error: "Logo is a Pro feature" }, { status: 402 });
+    }
   }
 
   const actualContent = redirect_to || content;

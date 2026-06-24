@@ -40,6 +40,7 @@ interface Props {
   onSubmit?: (data: QRFormData) => Promise<void>;
   submitLabel?: string;
   saving?: boolean;
+  plan?: string;
 }
 
 const QR_TYPES: { value: QrType; key: any; icon: string }[] = [
@@ -51,7 +52,7 @@ const QR_TYPES: { value: QrType; key: any; icon: string }[] = [
   { value: "image", key: "qrTypeImage", icon: "🖼️" },
 ];
 
-export default function QRForm({ initialValues, onChange, onSubmit, submitLabel, saving }: Props) {
+export default function QRForm({ initialValues, onChange, onSubmit, submitLabel, saving, plan = "free" }: Props) {
   const { t } = useLang();
   const [qrType, setQrType] = useState<QrType>(initialValues?.type || "url");
   const [url, setUrl] = useState(initialValues?.url || "");
@@ -72,8 +73,6 @@ export default function QRForm({ initialValues, onChange, onSubmit, submitLabel,
   const [bgColor, setBgColor] = useState(initialValues?.bgColor || "#ffffff");
   const [size, setSize] = useState(initialValues?.size || 256);
   const [logo, setLogo] = useState<string | null>(initialValues?.logo || null);
-  const [trialEnd, setTrialEnd] = useState<number | null>(null);
-  const [trialTimeLeft, setTrialTimeLeft] = useState("");
 
   useEffect(() => {
     if (!initialValues) return;
@@ -94,35 +93,6 @@ export default function QRForm({ initialValues, onChange, onSubmit, submitLabel,
     if (initialValues.size) setSize(initialValues.size);
     if (initialValues.logo !== undefined) setLogo(initialValues.logo);
   }, [initialValues]);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("qrwing-trial-end");
-    if (stored) {
-      const end = parseInt(stored, 10);
-      if (Date.now() < end) setTrialEnd(end);
-      else localStorage.removeItem("qrwing-trial-end");
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!trialEnd) return;
-    const update = () => {
-      const left = trialEnd - Date.now();
-      if (left <= 0) { setTrialTimeLeft(""); setTrialEnd(null); localStorage.removeItem("qrwing-trial-end"); return; }
-      const h = Math.floor(left / 3600000);
-      const m = Math.floor((left % 3600000) / 60000);
-      setTrialTimeLeft(h > 0 ? `${h}h ${m}m` : `${m}min`);
-    };
-    update();
-    const id = setInterval(update, 30000);
-    return () => clearInterval(id);
-  }, [trialEnd]);
-
-  const startTrial = () => {
-    const end = Date.now() + 86400000;
-    localStorage.setItem("qrwing-trial-end", String(end));
-    setTrialEnd(end);
-  };
 
   const qrValue = useCallback(() => {
     switch (qrType) {
@@ -262,48 +232,39 @@ export default function QRForm({ initialValues, onChange, onSubmit, submitLabel,
 
       {qrType === "image" && (
         <div className="space-y-3">
-          {trialEnd ? (
-            <div className="flex items-center gap-2 px-3 py-2 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 rounded-lg text-xs font-medium">
-              <span>🕐</span>
-              <span>{t("trialActive")} <strong>{trialTimeLeft}</strong></span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-lg text-xs font-medium">
-              <span>🎁</span>
-              <span>{t("trialPrompt")}</span>
-            </div>
-          )}
-
-          {imageUploadedUrl ? (
-            <div className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-green-300 dark:border-green-700 rounded-xl bg-white dark:bg-gray-800">
-              <img src={imageUploadedUrl} alt="Uploaded preview" className="h-24 w-auto rounded-lg object-contain" />
-              <span className="text-xs text-green-600 font-medium mt-1">{t("imageUploaded")}</span>
-            </div>
-          ) : (
-            <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl cursor-pointer hover:border-purple-400 transition-colors bg-white dark:bg-gray-800">
-              {imageUploading ? (
-                <div className="flex flex-col items-center gap-2">
-                  <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
-                  <span className="text-sm text-gray-500">{t("uploading")}</span>
+          {plan === "pro" ? (
+            <>
+              {imageUploadedUrl ? (
+                <div className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-green-300 dark:border-green-700 rounded-xl bg-white dark:bg-gray-800">
+                  <img src={imageUploadedUrl} alt="Uploaded preview" className="h-24 w-auto rounded-lg object-contain" />
+                  <span className="text-xs text-green-600 font-medium mt-1">{t("imageUploaded")}</span>
                 </div>
               ) : (
-                <div className="flex flex-col items-center gap-2 text-gray-400">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <span className="text-sm">{t("placeImageUrl")}</span>
-                </div>
+                <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl cursor-pointer hover:border-purple-400 transition-colors bg-white dark:bg-gray-800">
+                  {imageUploading ? (
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+                      <span className="text-sm text-gray-500">{t("uploading")}</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-gray-400">
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-sm">{t("placeImageUrl")}</span>
+                    </div>
+                  )}
+                  <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                </label>
               )}
-              <input type="file" accept="image/*" onChange={(e) => { startTrial(); handleImageUpload(e); }} className="hidden" />
-            </label>
-          )}
-          {imageError && <p className="text-xs text-red-500">{imageError}</p>}
-          {imageUploadedUrl && (
-            <button onClick={() => { setImageUploadedUrl(""); setImageError(""); }} className="text-xs text-red-500 hover:text-red-600">
-              {t("removeImage")}
-            </button>
-          )}
-          {trialEnd === null && (
+              {imageError && <p className="text-xs text-red-500">{imageError}</p>}
+              {imageUploadedUrl && (
+                <button onClick={() => { setImageUploadedUrl(""); setImageError(""); }} className="text-xs text-red-500 hover:text-red-600">
+                  {t("removeImage")}
+                </button>
+              )}
+            </>
+          ) : (
             <div className="text-center py-6 px-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
               <span className="text-2xl">🔒</span>
               <p className="text-sm text-gray-500 mt-2 mb-3">{t("imageTrialDesc")}</p>
@@ -313,7 +274,7 @@ export default function QRForm({ initialValues, onChange, onSubmit, submitLabel,
         </div>
       )}
 
-      <details className="text-sm">
+      <details open className="text-sm">
         <summary className="cursor-pointer text-gray-500 hover:text-purple-600 font-medium">{t("customize")}</summary>
         <div className="mt-3 flex gap-4">
           <div>
@@ -325,9 +286,19 @@ export default function QRForm({ initialValues, onChange, onSubmit, submitLabel,
             <input type="color" value={bgColor} onChange={(e) => setBgColor(e.target.value)} className="w-12 h-10 rounded cursor-pointer" />
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">{t("logo")}</label>
-            <input type="file" accept="image/*" onChange={(e) => { const file = e.target.files?.[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => setLogo(ev.target?.result as string); reader.readAsDataURL(file); }}} className="text-xs w-28" />
-            {logo && <button onClick={() => setLogo(null)} className="block text-xs text-red-500 mt-1">{t("removeLogo")}</button>}
+            <label className="block text-xs text-gray-500 mb-1">{t("logo")} <span className="text-purple-500 font-medium">Pro</span></label>
+            {plan === "pro" ? (
+              <>
+                <p className="text-[10px] text-gray-400 mb-1 leading-tight">{t("logoHelp")}</p>
+                <input type="file" accept="image/*" onChange={(e) => { const file = e.target.files?.[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => setLogo(ev.target?.result as string); reader.readAsDataURL(file); }}} className="text-xs" />
+                {logo && <button onClick={() => setLogo(null)} className="block text-xs text-red-500 mt-1">{t("removeLogo")}</button>}
+              </>
+            ) : (
+              <div className="flex items-center gap-1 text-xs text-gray-400">
+                <span>🔒</span>
+                <span>{t("logoProOnly")}</span>
+              </div>
+            )}
           </div>
         </div>
       </details>
