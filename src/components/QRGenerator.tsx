@@ -19,6 +19,7 @@ export default function QRGenerator() {
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [restoredForm, setRestoredForm] = useState<Record<string, any> | null>(null);
   const [plan, setPlan] = useState("free");
+  const [showLogoProModal, setShowLogoProModal] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -37,6 +38,14 @@ export default function QRGenerator() {
       }
     } catch {}
   }, []);
+
+  const hasLogo = qrData?.config?.logo != null;
+  const isLogoBlocked = hasLogo && plan !== "pro";
+
+  const withPro = (cb: () => void) => {
+    if (isLogoBlocked) { setShowLogoProModal(true); }
+    else { cb(); }
+  };
 
   const withAuth = (cb: () => void) => {
     if (session?.user) { cb(); }
@@ -64,7 +73,11 @@ export default function QRGenerator() {
           config: qrData.config,
         }),
       });
-      if (r.status === 402) { setSaveError("limit"); return false; }
+      if (r.status === 402) {
+        const body = await r.json().catch(() => ({}));
+        setSaveError(body?.error?.includes("Logo") ? "logo" : "limit");
+        return false;
+      }
       if (!r.ok) { setSaveError("error"); return false; }
       setSavedOk(true);
       setTimeout(() => setSavedOk(false), 2000);
@@ -133,9 +146,9 @@ export default function QRGenerator() {
 
           {qrData?.hasValues && (
             <div className="flex flex-wrap gap-2 justify-center">
-              <button onClick={() => withAuth(() => { saveToServer(); downloadQR("png"); })} className="px-5 py-2.5 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition duration-75 active:scale-[0.95]">{t("downloadPng")}</button>
-              <button onClick={() => withAuth(() => { saveToServer(); downloadQR("svg"); })} className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-75 active:scale-[0.95]">{t("downloadSvg")}</button>
-              <button onClick={() => withAuth(() => { saveToServer(); copyToClipboard(); })} className="px-5 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-75 active:scale-[0.95]">{copied ? t("copied") : t("copy")}</button>
+              <button onClick={() => withAuth(() => withPro(() => { saveToServer(); downloadQR("png"); }))} className="px-5 py-2.5 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition duration-75 active:scale-[0.95]">{t("downloadPng")}</button>
+              <button onClick={() => withAuth(() => withPro(() => { saveToServer(); downloadQR("svg"); }))} className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-75 active:scale-[0.95]">{t("downloadSvg")}</button>
+              <button onClick={() => withAuth(() => withPro(() => { saveToServer(); copyToClipboard(); }))} className="px-5 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-75 active:scale-[0.95]">{copied ? t("copied") : t("copy")}</button>
               {savedOk && (
                 <a href="/dashboard" className="text-xs text-green-600 font-medium hover:underline">
                   {t("saved")} — {t("viewDashboard")}
@@ -146,6 +159,13 @@ export default function QRGenerator() {
                 <div className="w-full bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-xl p-4 text-center">
                   <p className="text-sm font-medium text-purple-800 dark:text-purple-200">{t("saveLimitTitle")} <strong>{FREE_MAX_QR} {t("saveLimitQr")}</strong></p>
                   <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">{t("saveLimitDesc")}</p>
+                  <a href="/pricing" className="inline-block mt-3 px-5 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors active:scale-[0.95]">{t("upgradeToPro")} →</a>
+                </div>
+              )}
+              {saveError === "logo" && (
+                <div className="w-full bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 text-center">
+                  <p className="text-sm font-medium text-amber-800 dark:text-amber-200">{t("logoProOnly")}</p>
+                  <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">{t("logoHelp")}</p>
                   <a href="/pricing" className="inline-block mt-3 px-5 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 transition-colors active:scale-[0.95]">{t("upgradeToPro")} →</a>
                 </div>
               )}
@@ -168,6 +188,20 @@ export default function QRGenerator() {
             <p className="text-sm text-gray-500 mb-6">{t("signInRequiredDesc")}</p>
             <button onClick={handleSignIn} className="w-full px-5 py-3 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-colors">{t("signInRequired")}</button>
             <button onClick={() => setShowLoginPrompt(false)} className="mt-4 text-sm text-gray-400 hover:text-gray-600 transition-colors">Cancelar</button>
+          </div>
+        </div>
+      )}
+
+      {showLogoProModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 text-center">
+            <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/40 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">⭐</span>
+            </div>
+            <h3 className="text-lg font-semibold mb-2">{t("logoProOnly")}</h3>
+            <p className="text-sm text-gray-500 mb-6">{t("logoHelp")}</p>
+            <a href="/pricing" className="block w-full px-5 py-3 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition-colors">{t("upgradeToPro")} →</a>
+            <button onClick={() => setShowLogoProModal(false)} className="mt-4 text-sm text-gray-400 hover:text-gray-600 transition-colors">Cancelar</button>
           </div>
         </div>
       )}
