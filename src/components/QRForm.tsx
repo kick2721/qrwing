@@ -276,7 +276,7 @@ export default function QRForm({ initialValues, onChange, onSubmit, submitLabel,
 
       <details open className="text-sm">
         <summary className="cursor-pointer text-gray-500 hover:text-purple-600 font-medium">{t("customize")}</summary>
-        <div className="mt-3 flex gap-4">
+        <div className="mt-3 flex items-end gap-4">
           <div>
             <label className="block text-xs text-gray-500 mb-1">{t("colorQr")}</label>
             <input type="color" value={fgColor} onChange={(e) => setFgColor(e.target.value)} className="w-12 h-10 rounded cursor-pointer" />
@@ -288,7 +288,11 @@ export default function QRForm({ initialValues, onChange, onSubmit, submitLabel,
           <div>
             <label className="block text-xs text-gray-500 mb-1">{t("logo")} {plan !== "pro" && <span className="text-purple-500 font-medium">Pro</span>}</label>
             <p className="text-[10px] text-gray-400 mb-1 leading-tight">{t("logoHelp")}</p>
-            <input type="file" accept="image/*" onChange={(e) => { const file = e.target.files?.[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => setLogo(ev.target?.result as string); reader.readAsDataURL(file); }}} className="text-xs" />
+            <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-gray-800 hover:bg-purple-100 dark:hover:bg-purple-900/30 text-gray-600 dark:text-gray-300 rounded-lg cursor-pointer text-xs font-medium transition-colors">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+              {t("selectImage")}
+              <input type="file" accept="image/*" onChange={(e) => { const file = e.target.files?.[0]; if (file) { const reader = new FileReader(); reader.onload = (ev) => setLogo(ev.target?.result as string); reader.readAsDataURL(file); }}} className="hidden" />
+            </label>
             {logo && <button onClick={() => setLogo(null)} className="block text-xs text-red-500 mt-1">{t("removeLogo")}</button>}
             {logo && plan !== "pro" && (
               <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-1">🔒 {t("logoProOnly")}</p>

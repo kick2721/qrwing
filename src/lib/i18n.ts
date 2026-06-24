@@ -156,6 +156,8 @@ const t = {
     logoProOnly: "الشعار - ميزة Pro",
 
     logoHelp: "يظهر في وسط رمز الاستجابة السريعة. الخلفيات الشفافة تعمل بشكل أفضل.",
+
+    selectImage: "اختيار صورة",
     saveLimitTitle: "تتضمن النسخة المجانية",
     saveLimitQr: "تم حفظ رمز الاستجابة السريعة",
     saveLimitDesc: "قم بالترقية إلى Pro للحفظ غير المحدود.",
@@ -462,6 +464,8 @@ const t = {
     logoProOnly: "Logo — Pro-Funktion",
 
     logoHelp: "Erscheint in der Mitte Ihres QR. Transparente Hintergründe funktionieren am besten.",
+
+    selectImage: "Bild auswählen",
     saveLimitTitle: "Die kostenlose Version beinhaltet",
     saveLimitQr: "QR gespeichert",
     saveLimitDesc: "Upgrade auf Pro für unbegrenztes Speichern.",
@@ -768,6 +772,8 @@ const t = {
     logoProOnly: "Λογότυπο — Λειτουργία Pro",
 
     logoHelp: "Εμφανίζεται στο κέντρο του QR. Οι διάφανες φόντο λειτουργούν καλύτερα.",
+
+    selectImage: "Επιλογή εικόνας",
     saveLimitTitle: "Η δωρεάν έκδοση περιλαμβάνει",
     saveLimitQr: "αποθηκευμένο QR",
     saveLimitDesc: "Αναβαθμίστε σε Pro για απεριόριστες αποθηκεύσεις.",
@@ -1074,6 +1080,8 @@ const t = {
     logoProOnly: "Logo — Pro feature",
 
     logoHelp: "Appears in the center of your QR. Transparent backgrounds work best.",
+
+    selectImage: "Select image",
     saveLimitTitle: "The free version includes",
     saveLimitQr: "saved QR",
     saveLimitDesc: "Upgrade to Pro for unlimited saves.",
@@ -1406,6 +1414,8 @@ const t = {
     logoProOnly: "Logotipo — función Pro",
 
     logoHelp: "Aparece en el centro de tu QR. Los fondos transparentes funcionan mejor.",
+
+    selectImage: "Seleccionar imagen",
     saveLimitTitle: "La versión gratuita incluye",
     saveLimitQr: "QR guardados",
     saveLimitDesc: "Actualiza a Pro para guardar sin límite.",
@@ -1712,6 +1722,8 @@ const t = {
     logoProOnly: "Logo — fonction Pro",
 
     logoHelp: "Apparaît au centre de votre QR. Les fonds transparents fonctionnent mieux.",
+
+    selectImage: "Sélectionner une image",
     saveLimitTitle: "La version gratuite inclut",
     saveLimitQr: "QR enregistré",
     saveLimitDesc: "Passez à Pro pour des sauvegardes illimitées.",
@@ -2018,6 +2030,8 @@ const t = {
     logoProOnly: "लोगो — Pro सुविधा",
 
     logoHelp: "आपके QR के केंद्र में दिखाई देता है। पारदर्शी पृष्ठभूमि सबसे अच्छा काम करती है।",
+
+    selectImage: "छवि चुनें",
     saveLimitTitle: "मुफ्त संस्करण में शामिल है",
     saveLimitQr: "सहेजा गया QR",
     saveLimitDesc: "असीमित बचत के लिए प्रो में अपग्रेड करें।",
@@ -2324,6 +2338,8 @@ const t = {
     logoProOnly: "Logo — fitur Pro",
 
     logoHelp: "Muncul di tengah QR Anda. Latar belakang transparan bekerja paling baik.",
+
+    selectImage: "Pilih gambar",
     saveLimitTitle: "Versi gratis mencakup",
     saveLimitQr: "QR disimpan",
     saveLimitDesc: "Tingkatkan ke Pro untuk penyimpanan tak terbatas.",
@@ -2630,6 +2646,8 @@ const t = {
     logoProOnly: "Logo — funzionalità Pro",
 
     logoHelp: "Appare al centro del tuo QR. Gli sfondi trasparenti funzionano meglio.",
+
+    selectImage: "Seleziona immagine",
     saveLimitTitle: "La versione gratuita include",
     saveLimitQr: "QR salvato",
     saveLimitDesc: "Passa a Pro per salvataggi illimitati.",
@@ -2936,6 +2954,8 @@ const t = {
     logoProOnly: "ロゴ — Pro機能",
 
     logoHelp: "QRの中央に表示されます。透明な背景が最適です。",
+
+    selectImage: "画像を選択",
     saveLimitTitle: "無料版には以下が含まれます",
     saveLimitQr: "保存されたQR",
     saveLimitDesc: "無制限の保存にはProにアップグレード。",
@@ -3242,6 +3262,8 @@ const t = {
     logoProOnly: "로고 — Pro 기능",
 
     logoHelp: "QR 중앙에 표시됩니다. 투명 배경이 가장 잘 작동합니다.",
+
+    selectImage: "이미지 선택",
     saveLimitTitle: "무료 버전에는 다음이 포함됩니다",
     saveLimitQr: "저장된 QR",
     saveLimitDesc: "무제한 저장을 위해 프로로 업그레이드하세요.",
@@ -3548,6 +3570,8 @@ const t = {
     logoProOnly: "Logo — Pro-functie",
 
     logoHelp: "Verschijnt in het midden van uw QR. Transparante achtergronden werken het beste.",
+
+    selectImage: "Afbeelding selecteren",
     saveLimitTitle: "De gratis versie bevat",
     saveLimitQr: "QR opgeslagen",
     saveLimitDesc: "Upgrade naar Pro voor onbeperkt opslaan.",
@@ -3854,6 +3878,8 @@ const t = {
     logoProOnly: "Logo — funkcja Pro",
 
     logoHelp: "Pojawia się na środku QR. Przezroczyste tła działają najlepiej.",
+
+    selectImage: "Wybierz obraz",
     saveLimitTitle: "Darmowa wersja zawiera",
     saveLimitQr: "zapisany QR",
     saveLimitDesc: "Uaktualnij do Pro, aby uzyskać nieograniczone zapisywanie.",
@@ -4160,6 +4186,8 @@ const t = {
     logoProOnly: "Logotipo — recurso Pro",
 
     logoHelp: "Aparece no centro do seu QR. Fundos transparentes funcionam melhor.",
+
+    selectImage: "Selecionar imagem",
     saveLimitTitle: "A versão gratuita inclui",
     saveLimitQr: "QR salvo",
     saveLimitDesc: "Atualize para Pro para salvamentos ilimitados.",
@@ -4466,6 +4494,8 @@ const t = {
     logoProOnly: "Logo — funcție Pro",
 
     logoHelp: "Apare în centrul QR-ului. Fundalurile transparente funcționează cel mai bine.",
+
+    selectImage: "Selectați imaginea",
     saveLimitTitle: "Versiunea gratuită include",
     saveLimitQr: "QR salvat",
     saveLimitDesc: "Faceți upgrade la Pro pentru salvări nelimitate.",
@@ -4772,6 +4802,8 @@ const t = {
     logoProOnly: "Логотип — функция Pro",
 
     logoHelp: "Появляется в центре QR. Прозрачный фон работает лучше всего.",
+
+    selectImage: "Выберите изображение",
     saveLimitTitle: "Бесплатная версия включает",
     saveLimitQr: "сохраненный QR",
     saveLimitDesc: "Обновитесь до Pro для неограниченного сохранения.",
@@ -5078,6 +5110,8 @@ const t = {
     logoProOnly: "Logotyp — Pro-funktion",
 
     logoHelp: "Visas i mitten av din QR. Transparenta bakgrunder fungerar bäst.",
+
+    selectImage: "Välj bild",
     saveLimitTitle: "Den kostnadsfria versionen innehåller",
     saveLimitQr: "sparad QR",
     saveLimitDesc: "Uppgradera till Pro för obegränsad lagring.",
@@ -5384,6 +5418,8 @@ const t = {
     logoProOnly: "โลโก้ — ฟีเจอร์ Pro",
 
     logoHelp: "ปรากฏที่กึ่งกลาง QR ของคุณ พื้นหลังโปร่งใสใช้งานได้ดีที่สุด",
+
+    selectImage: "เลือกรูปภาพ",
     saveLimitTitle: "เวอร์ชันฟรีประกอบด้วย",
     saveLimitQr: "บันทึก QR แล้ว",
     saveLimitDesc: "อัปเกรดเป็น Pro เพื่อบันทึกไม่จำกัด",
@@ -5690,6 +5726,8 @@ const t = {
     logoProOnly: "Logo — Pro özelliği",
 
     logoHelp: "QR'ınızın ortasında görünür. Şeffaf arka planlar en iyi şekilde çalışır.",
+
+    selectImage: "Resim seç",
     saveLimitTitle: "Ücretsiz sürüm şunları içerir",
     saveLimitQr: "kaydedilen QR",
     saveLimitDesc: "Sınırsız kaydetme için Pro'ya yükseltin.",
@@ -5996,6 +6034,8 @@ const t = {
     logoProOnly: "Логотип — функція Pro",
 
     logoHelp: "З'являється в центрі QR. Прозорий фон працює найкраще.",
+
+    selectImage: "Виберіть зображення",
     saveLimitTitle: "Безкоштовна версія включає",
     saveLimitQr: "збережений QR",
     saveLimitDesc: "Оновіться до Pro для необмеженого збереження.",
@@ -6302,6 +6342,8 @@ const t = {
     logoProOnly: "Logo — tính năng Pro",
 
     logoHelp: "Xuất hiện ở trung tâm QR của bạn. Nền trong suốt hoạt động tốt nhất.",
+
+    selectImage: "Chọn hình ảnh",
     saveLimitTitle: "Phiên bản miễn phí bao gồm",
     saveLimitQr: "QR đã lưu",
     saveLimitDesc: "Nâng cấp lên Pro để lưu không giới hạn.",
@@ -6608,6 +6650,8 @@ const t = {
     logoProOnly: "Logo — Pro 功能",
 
     logoHelp: "出现在二维码中心。透明背景效果最佳。",
+
+    selectImage: "选择图片",
     saveLimitTitle: "免费版本包含",
     saveLimitQr: "已保存的二维码",
     saveLimitDesc: "升级到专业版以无限制保存。",
@@ -6914,6 +6958,8 @@ const t = {
     logoProOnly: "標誌 — Pro 功能",
 
     logoHelp: "出現在二維碼中心。透明背景效果最佳。",
+
+    selectImage: "選擇圖片",
     saveLimitTitle: "免費版本包含",
     saveLimitQr: "已儲存的二維碼",
     saveLimitDesc: "升級到專業版以無限制儲存。",
