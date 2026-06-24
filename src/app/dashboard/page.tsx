@@ -174,7 +174,7 @@ export default function Dashboard() {
 
       {qrcodes.length === 0 ? (
         <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-12 text-center">
-          <p className="mb-4"><svg className="w-20 h-20 mx-auto text-gray-300 dark:text-gray-700" viewBox="0 0 64 50" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 18L4 42a4 4 0 004 4h48a4 4 0 004-4l-4-24H8z" /><path d="M8 18l4-8h40l4 8" /><path d="M28 30h8" opacity=".3" /></svg></p>
+          <p className="text-6xl mb-2">📦</p>
           <h2 className="text-xl font-semibold mb-2">{t("dashboardEmpty")}</h2>
           <p className="text-gray-500 mb-6">{t("dashboardEmptyDesc")}</p>
           <Link href="/" className="inline-block px-6 py-3 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition duration-75 active:scale-[0.95]">{t("dashboardCreateFirst")}</Link>
