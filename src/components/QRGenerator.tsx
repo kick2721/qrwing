@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import QRForm, { type QRFormData } from "./QRForm";
 import { FREE_MAX_QR } from "@/lib/constants";
 import { contrastRatio } from "@/lib/color";
+import QRCode from "qrcode";
 
 const STORAGE_KEY = "qrwing_last_qr";
 
@@ -59,7 +60,7 @@ export default function QRGenerator() {
   };
 
   const saveToServer = async () => {
-    if (!qrData?.hasValues) return false;
+    if (!qrData?.hasValues) return null;
     setSaveError("");
     setSavedOk(false);
     try {
@@ -77,31 +78,32 @@ export default function QRGenerator() {
       if (r.status === 402) {
         const body = await r.json().catch(() => ({}));
         setSaveError(body?.error?.includes("Logo") ? "logo" : "limit");
-        return false;
+        return null;
       }
-      if (!r.ok) { setSaveError("error"); return false; }
+      if (!r.ok) { setSaveError("error"); return null; }
       const result = await r.json();
       setQrData(prev => prev ? { ...prev, content: result.content } : null);
       setSavedOk(true);
       setTimeout(() => setSavedOk(false), 2000);
-      return true;
-    } catch { setSaveError("error"); return false; }
+      return result.content as string;
+    } catch { setSaveError("error"); return null; }
   };
 
-  const downloadQR = (format: "png" | "svg") => {
+  const downloadQR = async (format: "png" | "svg", contentOverride?: string) => {
+    const content = contentOverride || qrData?.content;
+    if (!content) return;
+    const size = qrData?.config.size || 256;
+    const fg = qrData?.config.fgColor || "#111827";
+    const bg = qrData?.config.bgColor || "#ffffff";
     if (format === "png") {
-      const canvas = canvasRef.current?.querySelector("canvas");
-      if (!canvas) return;
+      const url = await QRCode.toDataURL(content, { width: size * 2, margin: 2, color: { dark: fg, light: bg } });
       const link = document.createElement("a");
       link.download = `qrwing-${Date.now()}.png`;
-      link.href = canvas.toDataURL("image/png");
+      link.href = url;
       link.click();
     } else {
-      const svg = document.querySelector("#qr-svg-download svg") as SVGSVGElement;
-      if (!svg) return;
-      const clone = svg.cloneNode(true) as SVGSVGElement;
-      clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-      const blob = new Blob([clone.outerHTML], { type: "image/svg+xml" });
+      const svg = await QRCode.toString(content, { type: "svg", width: size * 2, margin: 2, color: { dark: fg, light: bg } });
+      const blob = new Blob([svg], { type: "image/svg+xml" });
       const link = document.createElement("a");
       link.download = `qrwing-${Date.now()}.svg`;
       link.href = URL.createObjectURL(blob);
@@ -109,17 +111,19 @@ export default function QRGenerator() {
     }
   };
 
-  const copyToClipboard = async () => {
-    const canvas = canvasRef.current?.querySelector("canvas");
-    if (!canvas) return;
-    canvas.toBlob(async (blob) => {
-      if (!blob) return;
-      try {
-        await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2000);
-      } catch { downloadQR("png"); }
-    });
+  const copyToClipboard = async (contentOverride?: string) => {
+    const content = contentOverride || qrData?.content;
+    if (!content) return;
+    const size = qrData?.config.size || 256;
+    const fg = qrData?.config.fgColor || "#111827";
+    const bg = qrData?.config.bgColor || "#ffffff";
+    const url = await QRCode.toDataURL(content, { width: size * 2, margin: 2, color: { dark: fg, light: bg } });
+    const blob = await (await fetch(url)).blob();
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch { downloadQR("png", content); }
   };
 
   return (
@@ -157,9 +161,9 @@ export default function QRGenerator() {
                 );
               })()}
               <div className="flex flex-wrap gap-2 justify-center">
-              <button onClick={() => withAuth(() => withPro(() => { saveToServer(); downloadQR("png"); }))} className="px-5 py-2.5 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition duration-75 active:scale-[0.95]">{t("downloadPng")}</button>
-              <button onClick={() => withAuth(() => withPro(() => { saveToServer(); downloadQR("svg"); }))} className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-75 active:scale-[0.95]">{t("downloadSvg")}</button>
-              <button onClick={() => withAuth(() => withPro(() => { saveToServer(); copyToClipboard(); }))} className="px-5 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-75 active:scale-[0.95]">{copied ? t("copied") : t("copy")}</button>
+              <button onClick={() => withAuth(() => withPro(async () => { const c = await saveToServer(); downloadQR("png", c || undefined); }))} className="px-5 py-2.5 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition duration-75 active:scale-[0.95]">{t("downloadPng")}</button>
+              <button onClick={() => withAuth(() => withPro(async () => { const c = await saveToServer(); downloadQR("svg", c || undefined); }))} className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-75 active:scale-[0.95]">{t("downloadSvg")}</button>
+              <button onClick={() => withAuth(() => withPro(async () => { const c = await saveToServer(); copyToClipboard(c || undefined); }))} className="px-5 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-75 active:scale-[0.95]">{copied ? t("copied") : t("copy")}</button>
               {savedOk && (
                 <a href="/dashboard" className="text-xs text-green-600 font-medium hover:underline">
                   {t("saved")} — {t("viewDashboard")}
