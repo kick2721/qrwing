@@ -199,27 +199,27 @@ export default function Dashboard() {
               <span className="text-lg">⭐</span>
               <div>
                 <p className="font-semibold">{t("proSubscription")}</p>
-                <span className={`inline-block mt-1 text-xs font-medium px-2.5 py-0.5 rounded-full ${statusColor(subscription.status)}`}>
-                  {subscription.status === "active" && t("planPro")}
-                  {subscription.status === "on_trial" && t("planPro")}
-                  {subscription.status === "cancelled" && t("proCancelled").replace("{date}", formatDate(subscription.expires_at))}
-                  {subscription.status === "expired" && "Expired"}
-                  {subscription.status === "paused" && "Paused"}
-                </span>
+                {subscription.status !== "cancelled" && subscription.status !== "expired" && subscription.status !== "paused" && (
+                  <span className={`inline-block mt-1 text-xs font-medium px-2.5 py-0.5 rounded-full ${statusColor(subscription.status)}`}>
+                    {t("planPro")}
+                  </span>
+                )}
               </div>
             </div>
             <div className="text-right text-sm text-gray-500">
-              {(subscription.status === "active" || subscription.status === "on_trial") && subscription.trial_ends_at && new Date(subscription.trial_ends_at) > new Date() && (
+              {subscription.status === "on_trial" && subscription.trial_ends_at && new Date(subscription.trial_ends_at) > new Date() && (
                 <p>{t("proTrialEnds").replace("{n}", String(daysRemaining(subscription.trial_ends_at)))}</p>
               )}
-              {subscription.status === "active" && (!subscription.trial_ends_at || new Date(subscription.trial_ends_at) <= new Date()) && subscription.expires_at && (
+              {subscription.status === "active" && subscription.expires_at && (
                 <p>{t("proRenewOn").replace("{date}", formatDate(subscription.expires_at))}</p>
               )}
-              {subscription.status === "on_trial" && subscription.expires_at && (
-                <p>{t("proRenewOn").replace("{date}", formatDate(subscription.expires_at))}</p>
+              {subscription.status === "cancelled" && (
+                <span className={`inline-block text-xs font-medium px-2.5 py-0.5 rounded-full ${statusColor(subscription.status)}`}>
+                  {t("proCancelled").replace("{date}", formatDate(subscription.expires_at))}
+                </span>
               )}
               {(subscription.status === "active" || subscription.status === "on_trial") && (
-                <button onClick={() => setShowCancelConfirm(true)} className="mt-1 text-xs text-red-500 hover:text-red-600 underline">
+                <button onClick={() => setShowCancelConfirm(true)} className="mt-2 px-3 py-1.5 border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 rounded-xl text-xs font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition duration-75 active:scale-[0.95]">
                   {t("proCancel")}
                 </button>
               )}
