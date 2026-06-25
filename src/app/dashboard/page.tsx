@@ -44,6 +44,7 @@ export default function Dashboard() {
   const [subscription, setSubscription] = useState<any>(null);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [cancelling, setCancelling] = useState(false);
+  const [loadingPortal, setLoadingPortal] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/");
@@ -123,6 +124,24 @@ export default function Dashboard() {
       setShowCancelConfirm(false);
     } finally {
       setCancelling(false);
+    }
+  }
+
+  async function openPortal() {
+    setLoadingPortal(true);
+    try {
+      const r = await fetch("/api/subscription/portal");
+      if (r.ok) {
+        const { url } = await r.json();
+        window.open(url, "_blank");
+      } else {
+        const err = await r.json();
+        alert(err.error || "Error opening billing portal");
+      }
+    } catch {
+      alert("Network error");
+    } finally {
+      setLoadingPortal(false);
     }
   }
 
@@ -226,9 +245,14 @@ export default function Dashboard() {
                 </span>
               )}
               {(subscription.status === "active" || subscription.status === "on_trial") && (
-                <button onClick={() => setShowCancelConfirm(true)} className="mt-2 px-3 py-1.5 border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 rounded-xl text-xs font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition duration-75 active:scale-[0.95]">
-                  {t("proCancel")}
-                </button>
+                <div className="flex gap-2 mt-2 justify-end">
+                  <button onClick={openPortal} disabled={loadingPortal} className="px-3 py-1.5 border border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 rounded-xl text-xs font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-75 active:scale-[0.95] disabled:opacity-50">
+                    {loadingPortal ? t("loading") : t("proManage")}
+                  </button>
+                  <button onClick={() => setShowCancelConfirm(true)} className="px-3 py-1.5 border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 rounded-xl text-xs font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition duration-75 active:scale-[0.95]">
+                    {t("proCancel")}
+                  </button>
+                </div>
               )}
             </div>
           </div>

@@ -98,3 +98,31 @@ export async function cancelSubscription(subscriptionId: string): Promise<{ ok: 
 
   return { ok: true };
 }
+
+export async function getCustomerPortalUrl(customerId: string): Promise<string | null> {
+  const res = await fetch(`${API_BASE}/customer-portal`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${getKey()}`,
+      "Content-Type": "application/vnd.api+json",
+      Accept: "application/vnd.api+json",
+    },
+    body: JSON.stringify({
+      data: {
+        type: "customer-portals",
+        attributes: {
+          customer_id: parseInt(customerId, 10),
+        },
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    console.error("LS portal error:", res.status, body);
+    return null;
+  }
+
+  const json = await res.json();
+  return json.data?.attributes?.url || null;
+}
