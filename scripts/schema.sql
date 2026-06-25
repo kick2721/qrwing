@@ -41,9 +41,12 @@ CREATE TABLE IF NOT EXISTS "subscriptions" (
   id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id TEXT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
   plan TEXT NOT NULL DEFAULT 'free',
-  stripe_customer_id TEXT,
-  stripe_subscription_id TEXT,
+  status TEXT NOT NULL DEFAULT 'free',
+  lemon_squeezy_subscription_id TEXT,
+  lemon_squeezy_customer_id TEXT,
+  lemon_squeezy_order_id TEXT,
   expires_at TIMESTAMPTZ,
+  trial_ends_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );

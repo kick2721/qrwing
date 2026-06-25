@@ -1,9 +1,36 @@
 "use client";
 
+import { useState } from "react";
 import { useLang } from "@/context/LangContext";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function Pricing() {
   const { t } = useLang();
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
+  async function handleProCheckout() {
+    if (!session) {
+      router.push("/auth/signin");
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch("/api/checkout", { method: "POST" });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("Error al crear el checkout");
+        setLoading(false);
+      }
+    } catch {
+      alert("Error de conexión");
+      setLoading(false);
+    }
+  }
 
   const plans = [
     {
@@ -14,6 +41,7 @@ export default function Pricing() {
       features: [t("featFree1"), t("featFree2"), t("featFree3"), t("featFree4")],
       cta: t("ctaFree"),
       featured: false,
+      action: undefined,
     },
     {
       name: t("planPro"),
@@ -23,20 +51,12 @@ export default function Pricing() {
       features: [t("featPro1"), t("featPro2"), t("featPro3"), t("featPro4"), t("featPro5")],
       cta: t("ctaPro"),
       featured: true,
-    },
-    {
-      name: t("planEnt"),
-      price: t("priceEnt"),
-      period: t("perMonth"),
-      desc: t("planEntDesc"),
-      features: [t("featEnt1"), t("featEnt2"), t("featEnt3"), t("featEnt4"), t("featEnt5")],
-      cta: t("ctaEnt"),
-      featured: false,
+      action: handleProCheckout,
     },
   ];
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-12">
+    <div className="max-w-4xl mx-auto px-4 py-12">
       <section className="text-center mb-12">
         <h1 className="text-4xl font-bold mb-4">
           {t("pricingTitle")}
@@ -46,7 +66,7 @@ export default function Pricing() {
         </p>
       </section>
 
-      <div className="grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
+      <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
         {plans.map((plan) => (
           <div
             key={plan.name}
@@ -63,6 +83,9 @@ export default function Pricing() {
               {plan.period && (
                 <span className="text-gray-500 text-sm">{plan.period}</span>
               )}
+              {plan.featured && (
+                <p className="text-xs text-gray-400 mt-1">{t("pricingQarNote")}</p>
+              )}
             </div>
             <ul className="space-y-2 mb-6 flex-1">
               {plan.features.map((f) => (
@@ -75,13 +98,15 @@ export default function Pricing() {
               ))}
             </ul>
             <button
-              className={`w-full py-2.5 rounded-xl font-medium transition duration-75 active:scale-[0.97] ${
+              onClick={plan.action}
+              disabled={loading}
+              className={`w-full py-2.5 rounded-xl font-medium transition duration-75 active:scale-[0.97] disabled:opacity-50 ${
                 plan.featured
                   ? "bg-purple-600 text-white hover:bg-purple-700"
                   : "border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900"
               }`}
             >
-              {plan.cta}
+              {plan.featured && loading ? t("loading") : plan.cta}
             </button>
           </div>
         ))}

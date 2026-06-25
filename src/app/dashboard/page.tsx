@@ -41,6 +41,9 @@ export default function Dashboard() {
   const [qrLimit, setQrLimit] = useState(FREE_MAX_QR);
   const [statsBlocked, setStatsBlocked] = useState(false);
   const [editQR, setEditQR] = useState<QRCodeData | null>(null);
+  const [subscription, setSubscription] = useState<any>(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/");
@@ -53,6 +56,9 @@ export default function Dashboard() {
       setQrLimit(d.qrLimit || FREE_MAX_QR);
       if (codes.length > 0) { setSelectedQR(codes[0].id); if ((d.plan || "free") !== "pro") setStatsBlocked(true); }
     }).catch(() => {}).finally(() => setLoading(false));
+    fetch("/api/subscription").then(r => r.json()).then(d => {
+      if (d.plan !== "free") setSubscription(d);
+    }).catch(() => {});
   }, [status, router]);
 
   function confirmDelete(id: string) {
@@ -97,6 +103,38 @@ export default function Dashboard() {
       link.download = `qrwing-${qr.label || "qr"}.svg`;
       link.href = URL.createObjectURL(blob);
       link.click();
+    }
+  }
+
+  async function cancelSub() {
+    setCancelling(true);
+    try {
+      const r = await fetch("/api/subscription/cancel", { method: "POST" });
+      if (r.ok) {
+        setSubscription((prev: any) => ({ ...prev, status: "cancelled" }));
+        setShowCancelConfirm(false);
+      }
+    } finally {
+      setCancelling(false);
+    }
+  }
+
+  function formatDate(d: string) {
+    return new Date(d).toLocaleDateString();
+  }
+
+  function daysRemaining(d: string) {
+    const diff = new Date(d).getTime() - Date.now();
+    return Math.max(0, Math.ceil(diff / 86400000));
+  }
+
+  function statusColor(s: string) {
+    switch (s) {
+      case "active": return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
+      case "on_trial": return "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400";
+      case "cancelled": return "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400";
+      case "expired": return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
+      default: return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400";
     }
   }
 
@@ -153,6 +191,42 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+
+      {subscription && (
+        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-5">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-3">
+              <span className="text-lg">⭐</span>
+              <div>
+                <p className="font-semibold">{t("proSubscription")}</p>
+                <span className={`inline-block mt-1 text-xs font-medium px-2.5 py-0.5 rounded-full ${statusColor(subscription.status)}`}>
+                  {subscription.status === "active" && t("planPro")}
+                  {subscription.status === "on_trial" && t("planPro")}
+                  {subscription.status === "cancelled" && t("proCancelled").replace("{date}", formatDate(subscription.expires_at))}
+                  {subscription.status === "expired" && "Expired"}
+                  {subscription.status === "paused" && "Paused"}
+                </span>
+              </div>
+            </div>
+            <div className="text-right text-sm text-gray-500">
+              {(subscription.status === "active" || subscription.status === "on_trial") && subscription.trial_ends_at && new Date(subscription.trial_ends_at) > new Date() && (
+                <p>{t("proTrialEnds").replace("{n}", String(daysRemaining(subscription.trial_ends_at)))}</p>
+              )}
+              {subscription.status === "active" && (!subscription.trial_ends_at || new Date(subscription.trial_ends_at) <= new Date()) && subscription.expires_at && (
+                <p>{t("proRenewOn").replace("{date}", formatDate(subscription.expires_at))}</p>
+              )}
+              {subscription.status === "on_trial" && subscription.expires_at && (
+                <p>{t("proRenewOn").replace("{date}", formatDate(subscription.expires_at))}</p>
+              )}
+              {(subscription.status === "active" || subscription.status === "on_trial") && (
+                <button onClick={() => setShowCancelConfirm(true)} className="mt-1 text-xs text-red-500 hover:text-red-600 underline">
+                  {t("proCancel")}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {plan === "free" && (
         <div className="bg-gradient-to-r from-purple-50 to-purple-100 dark:from-purple-950/20 dark:to-purple-900/20 rounded-2xl border border-purple-200 dark:border-purple-800 p-5 flex items-center justify-between flex-wrap gap-3">
@@ -316,6 +390,22 @@ export default function Dashboard() {
         </div>
       )}
       {editQR && <EditModal qr={editQR} onClose={() => setEditQR(null)} onSaved={() => { setEditQR(null); window.location.reload(); }} />}
+      {showCancelConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setShowCancelConfirm(false)}>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 p-6 w-full max-w-sm mx-4" onClick={e => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold mb-2">{t("proCancel")}</h3>
+            <p className="text-sm text-gray-500 mb-6">{t("proCancelConfirm")}</p>
+            <div className="flex gap-3 justify-end">
+              <button onClick={() => setShowCancelConfirm(false)} className="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-75 active:scale-[0.95]">
+                {t("dashboardCancel")}
+              </button>
+              <button onClick={cancelSub} disabled={cancelling} className="px-4 py-2 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition duration-75 active:scale-[0.95] disabled:opacity-50">
+                {cancelling ? t("loading") : t("proCancel")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
