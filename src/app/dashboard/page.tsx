@@ -443,9 +443,9 @@ export default function Dashboard() {
                 <p className="text-sm text-gray-400">{t("dashboardTotalScans")}</p>
               </div>
 
-              <div className="flex gap-1 border-b border-gray-200 dark:border-gray-700 pb-1">
+              <div className="flex flex-wrap gap-1 border-b border-gray-200 dark:border-gray-700 pb-1">
                 {(["timeline","countries","devices","referrers"] as const).map(tab => (
-                  <button key={tab} onClick={() => setAnalyticsTab(tab)} className={`px-3 py-1.5 text-xs font-medium rounded-t-lg transition ${analyticsTab === tab ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300" : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"}`}>
+                  <button key={tab} onClick={() => setAnalyticsTab(tab)} className={`px-2 py-1.5 text-[11px] font-medium rounded-t-lg transition ${analyticsTab === tab ? "bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300" : "text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"}`}>
                     {tab === "timeline" ? "📈" : tab === "countries" ? "🌍" : tab === "devices" ? "📱" : "🔗"} {t("analytics" + tab.charAt(0).toUpperCase() + tab.slice(1) as any)}
                   </button>
                 ))}
@@ -479,18 +479,21 @@ export default function Dashboard() {
                 <div>
                   {stats.recent.length > 0 ? (
                     <div className="space-y-1 max-h-48 overflow-y-auto">
-                      {Object.entries(
-                        stats.recent.reduce((acc: Record<string, number>, s: any) => {
-                          const c = s.country || "Unknown";
-                          acc[c] = (acc[c] || 0) + 1;
-                          return acc;
-                        }, {})
-                      ).sort((a, b) => b[1] - a[1]).map(([country, count]) => (
-                        <div key={country} className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600 dark:text-gray-300 truncate">{country || "—"}</span>
-                          <span className="text-gray-400 ml-2">{count}</span>
-                        </div>
-                      ))}
+                      {(() => {
+                        const countries = Object.entries(
+                          stats.recent.reduce((acc: Record<string, number>, s: any) => {
+                            if (!s.country) return acc;
+                            acc[s.country] = (acc[s.country] || 0) + 1;
+                            return acc;
+                          }, {})
+                        ).sort((a, b) => b[1] - a[1]);
+                        return countries.length > 0 ? countries.map(([country, count]) => (
+                          <div key={country} className="flex items-center justify-between text-sm">
+                            <span className="text-gray-600 dark:text-gray-300 truncate">{country}</span>
+                            <span className="text-gray-400 ml-2">{count}</span>
+                          </div>
+                        )) : <p className="text-sm text-gray-400 text-center py-4">{t("analyticsNoData")}</p>;
+                      })()}
                     </div>
                   ) : (
                     <p className="text-sm text-gray-400 text-center py-4">{t("analyticsNoData")}</p>
@@ -544,7 +547,7 @@ export default function Dashboard() {
                         }, {})
                       ).sort((a, b) => b[1] - a[1]).map(([ref, count]) => (
                         <div key={ref} className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600 dark:text-gray-300 truncate">{ref}</span>
+                          <span className="text-gray-600 dark:text-gray-300 truncate">{ref === "Direct" ? t("dashboardDirect") : ref}</span>
                           <span className="text-gray-400 ml-2">{count}</span>
                         </div>
                       ))}

@@ -96,6 +96,7 @@ export default function PrivacyPage() {
             <li><strong>Vercel Inc.</strong> {t("privacySec4Item2")}</li>
             <li><strong>Vercel Blob</strong> {t("privacySec4Item3")}</li>
             <li><strong>Google, GitHub, Discord</strong> {t("privacySec4Item4")}</li>
+            <li><strong>ip-api.com</strong> {t("privacySec4Item5")}</li>
           </ul>
           <p className="mt-2">{t("privacySec4Outro")}</p>
         </div>
@@ -157,6 +158,11 @@ export default function PrivacyPage() {
           <p className="mt-2">
             {t("privacySec11EmailLabel")} <a href="mailto:qrwing.app@gmail.com" className="text-purple-600 hover:underline">qrwing.app@gmail.com</a>
           </p>
+        </div>
+
+        <div>
+          <h2 className="text-xl font-semibold mb-2 text-gray-900 dark:text-white">{t("privacySec12Title")}</h2>
+          <p>{t("privacySec12Content")}</p>
         </div>
       </section>
     </main>
