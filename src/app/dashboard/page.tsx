@@ -481,18 +481,17 @@ export default function Dashboard() {
                 <div>
                   {stats.daily.length > 0 ? (
                     <div>
-                      <p className="text-sm font-medium mb-2">{t("dashboardLast30").replace("30", "10")}</p>
+                      <p className="text-sm font-medium mb-2">{t("dashboardLast30").replace("30", "7")}</p>
                       <div className="flex items-end gap-1 flex-wrap">
-                        {stats.daily.slice(0, 10).reverse().map(d => {
+                        {stats.daily.slice(0, 7).reverse().map(d => {
                           const max = Math.max(...stats.daily.map(x => x.count), 1);
                           const h = Math.max(4, (d.count / max) * 64);
                           const date = new Date(d.date);
-                          const label = date.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
                           return (
-                            <div key={d.date} className="flex flex-col items-center gap-0.5 w-8" title={label}>
+                            <div key={d.date} className="flex flex-col items-center gap-0.5 w-10" title={date.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" })}>
                               <span className="text-[10px] text-gray-400">{d.count}</span>
                               <div className="w-full bg-purple-200 dark:bg-purple-900/40 rounded-t" style={{ height: `${h}px` }} />
-                              <span className="text-[8px] text-gray-400 leading-tight text-center whitespace-nowrap">{label}</span>
+                              <span className="text-[8px] text-gray-400 leading-tight text-center">{date.toLocaleDateString(undefined, { day: "numeric", month: "short" })}</span>
                             </div>
                           );
                         })}
