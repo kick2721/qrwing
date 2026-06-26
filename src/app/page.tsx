@@ -43,12 +43,15 @@ export default function Home() {
           </div>
 
           <div className="sm:col-span-2 grid sm:grid-cols-2 gap-0 rounded-2xl border border-purple-500/40 bg-white dark:bg-gray-900 shadow-lg overflow-hidden">
-            <div className="relative p-6 pt-8 bg-purple-50/50 dark:bg-purple-950/30">
-              <span className="absolute top-1 right-4 bg-purple-600 text-white text-xs px-3 py-0.5 rounded-full font-medium">{t("planPro")}</span>
-              <span className="text-xs font-semibold text-purple-600 uppercase tracking-wide">{t("pricePro")}{t("perMonth")}</span>
-              <h3 className="font-semibold text-lg mt-1 mb-3">{t("vsProTitle")}</h3>
-              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
-                {[t("featPro2"), t("featPro3"), t("featPro4"), t("vsProDashboard"), t("featPro5")].map((f) => (
+            <div className="p-6 bg-purple-50 dark:bg-purple-950/30 flex flex-col">
+              <h3 className="font-bold text-lg mb-1">{t("planPro")}</h3>
+              <p className="text-sm text-gray-500 mb-4">{t("planProDesc")}</p>
+              <div className="mb-6">
+                <span className="text-3xl font-bold">{t("pricePro")}</span>
+                <span className="text-gray-500 text-sm">{t("perMonth")}</span>
+              </div>
+              <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 flex-1">
+                {[t("featPro1"), t("featPro2"), t("featPro3"), t("featPro4"), t("featPro5")].map((f) => (
                   <li key={f} className="flex items-center gap-2">
                     <svg className="w-4 h-4 text-purple-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                     {f}
