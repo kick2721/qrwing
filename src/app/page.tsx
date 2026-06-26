@@ -43,8 +43,8 @@ export default function Home() {
           </div>
 
           <div className="sm:col-span-2 grid sm:grid-cols-2 gap-0 rounded-2xl border border-purple-500/40 bg-white dark:bg-gray-900 shadow-lg overflow-hidden">
-            <div className="relative p-6 bg-purple-50/50 dark:bg-purple-950/30">
-              <span className="absolute -top-2.5 right-4 bg-purple-600 text-white text-xs px-3 py-0.5 rounded-full font-medium">{t("planPro")}</span>
+            <div className="relative p-6 pt-8 bg-purple-50/50 dark:bg-purple-950/30">
+              <span className="absolute top-1 right-4 bg-purple-600 text-white text-xs px-3 py-0.5 rounded-full font-medium">{t("planPro")}</span>
               <span className="text-xs font-semibold text-purple-600 uppercase tracking-wide">{t("pricePro")}{t("perMonth")}</span>
               <h3 className="font-semibold text-lg mt-1 mb-3">{t("vsProTitle")}</h3>
               <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
