@@ -43,9 +43,9 @@ export default function Pricing() {
         </p>
       </section>
 
-      <div className="grid sm:grid-cols-3 gap-0 max-w-4xl mx-auto items-stretch">
+      <div className="grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto items-start">
 
-        <div className="p-6 rounded-2xl sm:rounded-r-none border border-gray-200 dark:border-gray-800 sm:border-r-0 flex flex-col">
+        <div className="p-6 rounded-2xl border border-gray-200 dark:border-gray-800 flex flex-col">
           <h3 className="font-bold text-lg mb-1">{t("planFree")}</h3>
           <p className="text-sm text-gray-500 mb-4">{t("planFreeDesc")}</p>
           <div className="mb-6">
@@ -66,7 +66,7 @@ export default function Pricing() {
           </button>
         </div>
 
-        <div className="relative p-6 border border-purple-500 bg-purple-50 dark:bg-purple-950/30 sm:border-x-0 shadow-lg flex flex-col">
+        <div className="relative p-6 rounded-2xl border border-purple-500 bg-purple-50 dark:bg-purple-950/30 shadow-lg flex flex-col">
           <h3 className="font-bold text-lg mb-1">{t("planPro")}</h3>
           <p className="text-sm text-gray-500 mb-4">{t("planProDesc")}</p>
           <div className="mb-6">
@@ -89,7 +89,7 @@ export default function Pricing() {
           </button>
         </div>
 
-        <div className="p-5 rounded-2xl sm:rounded-l-none border border-purple-500 bg-white dark:bg-gray-900 shadow-lg flex flex-col">
+        <div className="p-5 rounded-2xl border border-purple-500 bg-white dark:bg-gray-900 shadow-lg">
           <div className="text-center mb-4">
             <p className="text-3xl font-bold text-purple-600">248</p>
             <p className="text-xs text-gray-400">{t("dashboardTotalScans")}</p>
@@ -129,7 +129,7 @@ export default function Pricing() {
             </div>
           </div>
 
-          <div className="mt-auto">
+          <div>
             <p className="text-xs font-medium text-gray-500 mb-1">{t("analyticsHourDistribution")}</p>
             <div className="space-y-1">
               {[

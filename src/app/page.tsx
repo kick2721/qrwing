@@ -27,8 +27,8 @@ export default function Home() {
 
       <section className="mb-16">
         <h2 className="text-2xl font-bold text-center mb-8">{t("vsTitle")}</h2>
-        <div className="grid sm:grid-cols-3 gap-0 max-w-4xl mx-auto items-stretch">
-          <div className="p-6 rounded-2xl sm:rounded-r-none border border-gray-200 dark:border-gray-800 sm:border-r-0">
+        <div className="grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto items-start">
+          <div className="p-6 rounded-2xl border border-gray-200 dark:border-gray-800">
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{t("planFree")}</span>
             <h3 className="font-semibold text-lg mt-1 mb-3">{t("feat1Title")}</h3>
             <ul className="space-y-2 text-sm text-gray-500">
@@ -43,11 +43,11 @@ export default function Home() {
             </ul>
           </div>
 
-          <div className="relative p-6 border border-purple-500/40 bg-purple-50/50 dark:bg-purple-950/30 sm:border-x-0 shadow-lg flex flex-col">
+          <div className="relative p-6 rounded-2xl border border-purple-500/40 bg-purple-50/50 dark:bg-purple-950/30 shadow-lg">
             <span className="absolute -top-2.5 right-4 bg-purple-600 text-white text-xs px-3 py-0.5 rounded-full font-medium">{t("planPro")}</span>
             <span className="text-xs font-semibold text-purple-600 uppercase tracking-wide">{t("pricePro")}{t("perMonth")}</span>
             <h3 className="font-semibold text-lg mt-1 mb-3">{t("vsProTitle")}</h3>
-            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400 flex-1">
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
               <li className="flex items-center gap-2">
                 <svg className="w-4 h-4 text-purple-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                 {t("featPro2")}
@@ -71,7 +71,7 @@ export default function Home() {
             </ul>
           </div>
 
-          <div className="p-5 rounded-2xl sm:rounded-l-none border border-purple-500/40 bg-white dark:bg-gray-900 shadow-lg flex flex-col">
+          <div className="p-5 rounded-2xl border border-purple-500/40 bg-white dark:bg-gray-900 shadow-lg">
             <div className="text-center mb-4">
               <p className="text-3xl font-bold text-purple-600">248</p>
               <p className="text-xs text-gray-400">{t("dashboardTotalScans")}</p>
@@ -111,7 +111,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="mt-auto">
+            <div>
               <p className="text-xs font-medium text-gray-500 mb-1">{t("analyticsHourDistribution")}</p>
               <div className="space-y-1">
                 {[
