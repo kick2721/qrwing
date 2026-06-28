@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import QRCodeStyling from "qr-code-styling";
 import { useLang } from "@/context/LangContext";
 import type { QRFormData } from "./QRForm";
-import { buildQrOptions } from "./QRGenerator";
+import { buildQrOptions } from "@/lib/qr-options";
 import { frameClass } from "@/lib/frames";
 
 export default function QRPreview({ qrData, isLogoBlocked, withPro, withAuth }: { qrData: QRFormData | null | undefined; isLogoBlocked: boolean; withPro: (cb: () => void) => void; withAuth: (cb: () => void) => void }) {

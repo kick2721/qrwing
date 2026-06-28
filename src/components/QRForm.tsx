@@ -255,7 +255,7 @@ export default function QRForm({ initialValues, onChange, onSubmit, submitLabel,
       config: { fgColor, bgColor, size, logo, gradientType, gradientColor1, gradientColor2, dotsType, cornersSquareType, cornersDotType, frame, passwordHint, folder, expiresAt, multiLinks: (qrType === "multi-link" ? multiLinks : undefined) },
       hasValues: val.length > 0,
     };
-  }, [qrValue, qrType, fgColor, bgColor, size, logo, gradientType, gradientColor1, gradientColor2, dotsType, cornersSquareType, cornersDotType, passwordHint, folder, expiresAt, multiLinks]);
+  }, [qrValue, qrType, fgColor, bgColor, size, logo, gradientType, gradientColor1, gradientColor2, dotsType, cornersSquareType, cornersDotType, frame, passwordHint, folder, expiresAt, multiLinks]);
 
   useEffect(() => {
     if (onChange) onChange(getData());
