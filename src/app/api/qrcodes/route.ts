@@ -4,7 +4,7 @@ import { Pool } from "pg";
 import { getUserPlan } from "@/lib/plan";
 import { NextResponse } from "next/server";
 
-const VALID_TYPES = ["url", "text", "wifi", "vcard", "email", "image"];
+const VALID_TYPES = ["url", "text", "wifi", "vcard", "email", "image", "whatsapp", "phone", "sms", "location", "calendar", "youtube", "appstore", "telegram"];
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,

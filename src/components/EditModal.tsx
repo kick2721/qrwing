@@ -23,7 +23,7 @@ interface Props {
 
 function parseQRValues(qr: QRCodeData) {
   const config = typeof qr.config === "string" ? JSON.parse(qr.config) : (qr.config || {});
-  const base: any = { fgColor: config.fgColor || "#000000", bgColor: config.bgColor || "#ffffff", size: config.size || 256, logo: config.logo || null };
+  const base: any = { fgColor: config.fgColor || "#000000", bgColor: config.bgColor || "#ffffff", size: config.size || 256, logo: config.logo || null, gradientType: config.gradientType || "", gradientColor1: config.gradientColor1 || "#667eea", gradientColor2: config.gradientColor2 || "#764ba2", dotsType: config.dotsType || "square", cornersSquareType: config.cornersSquareType || "square", cornersDotType: config.cornersDotType || "square" };
   const content = qr.redirect_to || qr.content;
   switch (qr.type) {
     case "url": return { ...base, type: "url" as const, url: content };
@@ -47,6 +47,32 @@ function parseQRValues(qr: QRCodeData) {
       }
     }
     case "image": return { ...base, type: "image" as const, imageUploadedUrl: content };
+    case "whatsapp": {
+      try {
+        const u = new URL(content);
+        const phone = u.pathname.replace("/", "");
+        return { ...base, type: "whatsapp" as const, whatsappPhone: phone, whatsappMsg: u.searchParams.get("text") || "" };
+      } catch { return { ...base, type: "whatsapp" as const, whatsappPhone: content }; }
+    }
+    case "phone": return { ...base, type: "phone" as const, phoneNumber: content.replace("tel:", "") };
+    case "sms": {
+      const m = content.match(/^smsto:(.+?):(.+)$/);
+      return m ? { ...base, type: "sms" as const, smsPhone: m[1], smsMsg: m[2] } : { ...base, type: "sms" as const, smsPhone: content.replace("smsto:", "") };
+    }
+    case "location": return { ...base, type: "location" as const, locationQuery: decodeURIComponent(content.replace("https://maps.google.com/maps?q=", "")) };
+    case "calendar": {
+      const g = (k: string) => content.match(new RegExp(`${k}:(.+)`))?.[1]?.trim() || "";
+      const dt = g("DTSTART").replace(/(\d{4})(\d{2})(\d{2})T?(\d{0,2})(\d{0,2})/, (_, y, m, d, h, min) => `${y}-${m}-${d}${h ? ` ${h}:${min || "00"}` : ""}`);
+      return { ...base, type: "calendar" as const, calendarTitle: g("SUMMARY"), calendarDate: dt, calendarLocation: g("LOCATION"), calendarDesc: g("DESCRIPTION") };
+    }
+    case "youtube": return { ...base, type: "youtube" as const, youtubeUrl: content };
+    case "appstore": return { ...base, type: "appstore" as const, appstoreUrl: content };
+    case "telegram": {
+      try {
+        const u = new URL(content);
+        return { ...base, type: "telegram" as const, telegramUser: u.pathname.replace("/", ""), telegramMsg: u.searchParams.get("text") || "" };
+      } catch { return { ...base, type: "telegram" as const, telegramUser: content }; }
+    }
     default: return { ...base, type: "url" as const, url: content };
   }
 }

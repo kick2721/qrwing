@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from "react";
 import { useLang } from "@/context/LangContext";
 import { contrastRatio } from "@/lib/color";
 
-type QrType = "url" | "text" | "wifi" | "vcard" | "email" | "image";
+type QrType = "url" | "text" | "wifi" | "vcard" | "email" | "image" | "whatsapp" | "phone" | "sms" | "location" | "calendar" | "youtube" | "appstore" | "telegram";
 
 interface QRFormInitialValues {
   type?: QrType;
@@ -20,10 +20,30 @@ interface QRFormInitialValues {
   emailSubject?: string;
   emailBody?: string;
   imageUploadedUrl?: string;
+  whatsappPhone?: string;
+  whatsappMsg?: string;
+  phoneNumber?: string;
+  smsPhone?: string;
+  smsMsg?: string;
+  locationQuery?: string;
+  calendarTitle?: string;
+  calendarDate?: string;
+  calendarLocation?: string;
+  calendarDesc?: string;
+  youtubeUrl?: string;
+  appstoreUrl?: string;
+  telegramUser?: string;
+  telegramMsg?: string;
   fgColor?: string;
   bgColor?: string;
   size?: number;
   logo?: string | null;
+  gradientType?: string;
+  gradientColor1?: string;
+  gradientColor2?: string;
+  dotsType?: string;
+  cornersSquareType?: string;
+  cornersDotType?: string;
 }
 
 export interface QRFormData {
@@ -50,6 +70,14 @@ const QR_TYPES: { value: QrType; key: any; icon: string }[] = [
   { value: "wifi", key: "qrTypeWifi", icon: "📶" },
   { value: "vcard", key: "qrTypeVcard", icon: "👤" },
   { value: "email", key: "qrTypeEmail", icon: "✉️" },
+  { value: "whatsapp", key: "qrTypeWhatsapp", icon: "💬" },
+  { value: "phone", key: "qrTypePhone", icon: "📞" },
+  { value: "sms", key: "qrTypeSms", icon: "✉️" },
+  { value: "location", key: "qrTypeLocation", icon: "📍" },
+  { value: "calendar", key: "qrTypeCalendar", icon: "📅" },
+  { value: "youtube", key: "qrTypeYoutube", icon: "▶️" },
+  { value: "appstore", key: "qrTypeAppstore", icon: "📱" },
+  { value: "telegram", key: "qrTypeTelegram", icon: "✈️" },
   { value: "image", key: "qrTypeImage", icon: "🖼️" },
 ];
 
@@ -70,10 +98,30 @@ export default function QRForm({ initialValues, onChange, onSubmit, submitLabel,
   const [imageUploadedUrl, setImageUploadedUrl] = useState(initialValues?.imageUploadedUrl || "");
   const [imageUploading, setImageUploading] = useState(false);
   const [imageError, setImageError] = useState("");
+  const [whatsappPhone, setWhatsappPhone] = useState(initialValues?.whatsappPhone || "");
+  const [whatsappMsg, setWhatsappMsg] = useState(initialValues?.whatsappMsg || "");
+  const [phoneNumber, setPhoneNumber] = useState(initialValues?.phoneNumber || "");
+  const [smsPhone, setSmsPhone] = useState(initialValues?.smsPhone || "");
+  const [smsMsg, setSmsMsg] = useState(initialValues?.smsMsg || "");
+  const [locationQuery, setLocationQuery] = useState(initialValues?.locationQuery || "");
+  const [calendarTitle, setCalendarTitle] = useState(initialValues?.calendarTitle || "");
+  const [calendarDate, setCalendarDate] = useState(initialValues?.calendarDate || "");
+  const [calendarLocation, setCalendarLocation] = useState(initialValues?.calendarLocation || "");
+  const [calendarDesc, setCalendarDesc] = useState(initialValues?.calendarDesc || "");
+  const [youtubeUrl, setYoutubeUrl] = useState(initialValues?.youtubeUrl || "");
+  const [appstoreUrl, setAppstoreUrl] = useState(initialValues?.appstoreUrl || "");
+  const [telegramUser, setTelegramUser] = useState(initialValues?.telegramUser || "");
+  const [telegramMsg, setTelegramMsg] = useState(initialValues?.telegramMsg || "");
   const [fgColor, setFgColor] = useState(initialValues?.fgColor || "#000000");
   const [bgColor, setBgColor] = useState(initialValues?.bgColor || "#ffffff");
   const [size, setSize] = useState(initialValues?.size || 256);
   const [logo, setLogo] = useState<string | null>(initialValues?.logo || null);
+  const [gradientType, setGradientType] = useState<string>(initialValues?.gradientType || "");
+  const [gradientColor1, setGradientColor1] = useState(initialValues?.gradientColor1 || "#667eea");
+  const [gradientColor2, setGradientColor2] = useState(initialValues?.gradientColor2 || "#764ba2");
+  const [dotsType, setDotsType] = useState(initialValues?.dotsType || "square");
+  const [cornersSquareType, setCornersSquareType] = useState(initialValues?.cornersSquareType || "square");
+  const [cornersDotType, setCornersDotType] = useState(initialValues?.cornersDotType || "square");
 
   useEffect(() => {
     if (!initialValues) return;
@@ -89,10 +137,30 @@ export default function QRForm({ initialValues, onChange, onSubmit, submitLabel,
     if (initialValues.emailAddr !== undefined) setEmailAddr(initialValues.emailAddr);
     if (initialValues.emailSubject !== undefined) setEmailSubject(initialValues.emailSubject);
     if (initialValues.emailBody !== undefined) setEmailBody(initialValues.emailBody);
+    if (initialValues.whatsappPhone !== undefined) setWhatsappPhone(initialValues.whatsappPhone);
+    if (initialValues.whatsappMsg !== undefined) setWhatsappMsg(initialValues.whatsappMsg);
+    if (initialValues.phoneNumber !== undefined) setPhoneNumber(initialValues.phoneNumber);
+    if (initialValues.smsPhone !== undefined) setSmsPhone(initialValues.smsPhone);
+    if (initialValues.smsMsg !== undefined) setSmsMsg(initialValues.smsMsg);
+    if (initialValues.locationQuery !== undefined) setLocationQuery(initialValues.locationQuery);
+    if (initialValues.calendarTitle !== undefined) setCalendarTitle(initialValues.calendarTitle);
+    if (initialValues.calendarDate !== undefined) setCalendarDate(initialValues.calendarDate);
+    if (initialValues.calendarLocation !== undefined) setCalendarLocation(initialValues.calendarLocation);
+    if (initialValues.calendarDesc !== undefined) setCalendarDesc(initialValues.calendarDesc);
+    if (initialValues.youtubeUrl !== undefined) setYoutubeUrl(initialValues.youtubeUrl);
+    if (initialValues.appstoreUrl !== undefined) setAppstoreUrl(initialValues.appstoreUrl);
+    if (initialValues.telegramUser !== undefined) setTelegramUser(initialValues.telegramUser);
+    if (initialValues.telegramMsg !== undefined) setTelegramMsg(initialValues.telegramMsg);
     if (initialValues.fgColor) setFgColor(initialValues.fgColor);
     if (initialValues.bgColor) setBgColor(initialValues.bgColor);
     if (initialValues.size) setSize(initialValues.size);
     if (initialValues.logo !== undefined) setLogo(initialValues.logo);
+    if (initialValues.gradientType !== undefined) setGradientType(initialValues.gradientType);
+    if (initialValues.gradientColor1 !== undefined) setGradientColor1(initialValues.gradientColor1);
+    if (initialValues.gradientColor2 !== undefined) setGradientColor2(initialValues.gradientColor2);
+    if (initialValues.dotsType !== undefined) setDotsType(initialValues.dotsType);
+    if (initialValues.cornersSquareType !== undefined) setCornersSquareType(initialValues.cornersSquareType);
+    if (initialValues.cornersDotType !== undefined) setCornersDotType(initialValues.cornersDotType);
   }, [initialValues]);
 
   const qrValue = useCallback(() => {
@@ -103,9 +171,17 @@ export default function QRForm({ initialValues, onChange, onSubmit, submitLabel,
       case "vcard": return `BEGIN:VCARD\nVERSION:3.0\nFN:${vcardName}\nTEL:${vcardPhone}\nEMAIL:${vcardEmail}\nEND:VCARD`;
       case "email": return `https://generadorqrweb.vercel.app/mail?to=${encodeURIComponent(emailAddr)}&subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
       case "image": return imageUploadedUrl;
+      case "whatsapp": return `https://wa.me/${whatsappPhone.replace(/[^0-9]/g, "")}${whatsappMsg ? "?text=" + encodeURIComponent(whatsappMsg) : ""}`;
+      case "phone": return `tel:${phoneNumber}`;
+      case "sms": return `smsto:${smsPhone}:${smsMsg}`;
+      case "location": return `https://maps.google.com/maps?q=${encodeURIComponent(locationQuery)}`;
+      case "calendar": return `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${calendarTitle}\nDTSTART:${calendarDate ? calendarDate.replace(/[\s:-]/g, "").padEnd(15, "0") : ""}\nLOCATION:${calendarLocation}\nDESCRIPTION:${calendarDesc}\nEND:VEVENT\nEND:VCALENDAR`;
+      case "youtube": return youtubeUrl;
+      case "appstore": return appstoreUrl;
+      case "telegram": return `https://t.me/${telegramUser.replace(/^@/, "")}${telegramMsg ? "?text=" + encodeURIComponent(telegramMsg) : ""}`;
       default: return "";
     }
-  }, [qrType, url, text, wifiSsid, wifiPass, wifiEnc, vcardName, vcardPhone, vcardEmail, emailAddr, emailSubject, emailBody, imageUploadedUrl]);
+  }, [qrType, url, text, wifiSsid, wifiPass, wifiEnc, vcardName, vcardPhone, vcardEmail, emailAddr, emailSubject, emailBody, imageUploadedUrl, whatsappPhone, whatsappMsg, phoneNumber, smsPhone, smsMsg, locationQuery, calendarTitle, calendarDate, calendarLocation, calendarDesc, youtubeUrl, appstoreUrl, telegramUser, telegramMsg]);
 
   const getData = useCallback((): QRFormData => {
     const val = qrValue();
@@ -114,10 +190,10 @@ export default function QRForm({ initialValues, onChange, onSubmit, submitLabel,
       content: val,
       redirect_to: val,
       label: val.slice(0, 60),
-      config: { fgColor, bgColor, size, logo },
+      config: { fgColor, bgColor, size, logo, gradientType, gradientColor1, gradientColor2, dotsType, cornersSquareType, cornersDotType },
       hasValues: val.length > 0,
     };
-  }, [qrValue, qrType, fgColor, bgColor, size, logo]);
+  }, [qrValue, qrType, fgColor, bgColor, size, logo, gradientType, gradientColor1, gradientColor2, dotsType, cornersSquareType, cornersDotType]);
 
   useEffect(() => {
     if (onChange) onChange(getData());
@@ -277,6 +353,66 @@ export default function QRForm({ initialValues, onChange, onSubmit, submitLabel,
         </div>
       )}
 
+      {qrType === "whatsapp" && (
+        <div className="space-y-3">
+          <input type="tel" placeholder={t("placeWhatsappPhone")} value={whatsappPhone} onChange={(e) => setWhatsappPhone(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none" />
+          <input type="text" placeholder={t("placeWhatsappMsg")} value={whatsappMsg} onChange={(e) => setWhatsappMsg(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none" />
+        </div>
+      )}
+
+      {qrType === "phone" && (
+        <input type="tel" placeholder={t("placePhone")} value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)}
+          className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none" />
+      )}
+
+      {qrType === "sms" && (
+        <div className="space-y-3">
+          <input type="tel" placeholder={t("placeSmsPhone")} value={smsPhone} onChange={(e) => setSmsPhone(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none" />
+          <textarea placeholder={t("placeSmsMsg")} value={smsMsg} onChange={(e) => setSmsMsg(e.target.value)} rows={3}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none resize-none" />
+        </div>
+      )}
+
+      {qrType === "location" && (
+        <input type="text" placeholder={t("placeLocation")} value={locationQuery} onChange={(e) => setLocationQuery(e.target.value)}
+          className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none" />
+      )}
+
+      {qrType === "calendar" && (
+        <div className="space-y-3">
+          <input type="text" placeholder={t("placeCalendarTitle")} value={calendarTitle} onChange={(e) => setCalendarTitle(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none" />
+          <input type="text" placeholder={t("placeCalendarDate")} value={calendarDate} onChange={(e) => setCalendarDate(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none" />
+          <input type="text" placeholder={t("placeCalendarLocation")} value={calendarLocation} onChange={(e) => setCalendarLocation(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none" />
+          <textarea placeholder={t("placeCalendarDesc")} value={calendarDesc} onChange={(e) => setCalendarDesc(e.target.value)} rows={2}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none resize-none" />
+        </div>
+      )}
+
+      {qrType === "youtube" && (
+        <input type="url" placeholder={t("placeYoutubeUrl")} value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)}
+          className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none" />
+      )}
+
+      {qrType === "appstore" && (
+        <input type="url" placeholder={t("placeAppstoreIos")} value={appstoreUrl} onChange={(e) => setAppstoreUrl(e.target.value)}
+          className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none" />
+      )}
+
+      {qrType === "telegram" && (
+        <div className="space-y-3">
+          <input type="text" placeholder={t("placeTelegramUser")} value={telegramUser} onChange={(e) => setTelegramUser(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none" />
+          <input type="text" placeholder={t("placeTelegramMsg")} value={telegramMsg} onChange={(e) => setTelegramMsg(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none" />
+        </div>
+      )}
+
       <details open className="text-sm">
         <summary className="cursor-pointer text-gray-500 hover:text-purple-600 font-medium">{t("customize")}</summary>
         <div className="mt-3 flex items-end gap-4">
@@ -302,6 +438,60 @@ export default function QRForm({ initialValues, onChange, onSubmit, submitLabel,
             )}
           </div>
         </div>
+
+        <div className="mt-4 flex flex-wrap gap-4">
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">{t("gradient")}</label>
+            <select value={gradientType} onChange={(e) => setGradientType(e.target.value)}
+              className="px-2 py-1.5 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-xs w-24">
+              <option value="">—</option>
+              <option value="linear">{t("gradientLinear")}</option>
+              <option value="radial">{t("gradientRadial")}</option>
+            </select>
+          </div>
+          {gradientType && (
+            <>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">#1</label>
+                <input type="color" value={gradientColor1} onChange={(e) => setGradientColor1(e.target.value)} className="w-12 h-10 rounded cursor-pointer" />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">#2</label>
+                <input type="color" value={gradientColor2} onChange={(e) => setGradientColor2(e.target.value)} className="w-12 h-10 rounded cursor-pointer" />
+              </div>
+            </>
+          )}
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">{t("dotStyle")}</label>
+            <select value={dotsType} onChange={(e) => setDotsType(e.target.value)}
+              className="px-2 py-1.5 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-xs w-28">
+              <option value="square">{t("dotSquare")}</option>
+              <option value="dots">{t("dotDots")}</option>
+              <option value="rounded">{t("dotRounded")}</option>
+              <option value="extra-rounded">{t("dotExtraRounded")}</option>
+              <option value="classy">{t("dotClassy")}</option>
+              <option value="classy-rounded">{t("dotClassyRounded")}</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">{t("cornerSquareStyle")}</label>
+            <select value={cornersSquareType} onChange={(e) => setCornersSquareType(e.target.value)}
+              className="px-2 py-1.5 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-xs w-28">
+              <option value="square">{t("dotSquare")}</option>
+              <option value="dot">{t("cornerDot")}</option>
+              <option value="extra-rounded">{t("dotExtraRounded")}</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">{t("cornerDotStyle")}</label>
+            <select value={cornersDotType} onChange={(e) => setCornersDotType(e.target.value)}
+              className="px-2 py-1.5 rounded border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 text-xs w-28">
+              <option value="square">{t("dotSquare")}</option>
+              <option value="dot">{t("cornerDot")}</option>
+            </select>
+          </div>
+        </div>
+
         {(() => {
           const ratio = contrastRatio(fgColor, bgColor);
           if (ratio >= 3) return null;

@@ -1,15 +1,56 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
+import QRCodeStyling from "qr-code-styling";
 import { useLang } from "@/context/LangContext";
 import { useSession } from "next-auth/react";
 import QRForm, { type QRFormData } from "./QRForm";
 import { FREE_MAX_QR } from "@/lib/constants";
 import { contrastRatio } from "@/lib/color";
-import QRCode from "qrcode";
 
 const STORAGE_KEY = "generadorqr_last_qr";
+
+export function buildQrOptions(data: QRFormData) {
+  const size = data.config.size || 256;
+  const fg = data.config.fgColor || "#000000";
+  const bg = data.config.bgColor || "#ffffff";
+  const dotsType = data.config.dotsType || "square";
+  const cornersSquareType = data.config.cornersSquareType || "square";
+  const cornersDotType = data.config.cornersDotType || "square";
+  const gradientType = data.config.gradientType;
+  const gradientColor1 = data.config.gradientColor1;
+  const gradientColor2 = data.config.gradientColor2;
+
+  const dotsOptions: any = { type: dotsType, color: fg };
+  if (gradientType && gradientColor1 && gradientColor2) {
+    dotsOptions.color = undefined;
+    dotsOptions.gradient = {
+      type: gradientType,
+      rotation: 0,
+      colorStops: [
+        { offset: 0, color: gradientColor1 },
+        { offset: 1, color: gradientColor2 },
+      ],
+    };
+  }
+
+  return {
+    width: size,
+    height: size,
+    data: data.content,
+    image: data.config.logo || undefined,
+    dotsOptions,
+    cornersSquareOptions: { type: cornersSquareType, color: fg },
+    cornersDotOptions: { type: cornersDotType, color: fg },
+    backgroundOptions: { color: bg },
+    imageOptions: {
+      imageSize: 0.25,
+      hideBackgroundDots: true,
+      crossOrigin: "anonymous",
+    },
+    qrOptions: { errorCorrectionLevel: "H" as const },
+  };
+}
 
 export default function QRGenerator() {
   const { t } = useLang();
@@ -23,6 +64,7 @@ export default function QRGenerator() {
   const [plan, setPlan] = useState("free");
   const [showLogoProModal, setShowLogoProModal] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
+  const qrRef = useRef<any>(null);
 
   useEffect(() => {
     if (!session?.user) return;
@@ -40,6 +82,23 @@ export default function QRGenerator() {
       }
     } catch {}
   }, []);
+
+  useEffect(() => {
+    if (!qrData?.hasValues || !canvasRef.current) {
+      if (qrRef.current && canvasRef.current) {
+        canvasRef.current.innerHTML = "";
+        qrRef.current = null;
+      }
+      return;
+    }
+
+    if (!qrRef.current) {
+      qrRef.current = new QRCodeStyling(buildQrOptions(qrData));
+      qrRef.current.append(canvasRef.current);
+    } else {
+      qrRef.current.update(buildQrOptions(qrData));
+    }
+  }, [qrData]);
 
   const hasLogo = qrData?.config?.logo != null;
   const isLogoBlocked = hasLogo && plan !== "pro";
@@ -89,62 +148,41 @@ export default function QRGenerator() {
     } catch { setSaveError("error"); return null; }
   };
 
-  const downloadQR = async (format: "png" | "svg", contentOverride?: string) => {
-    const content = contentOverride || qrData?.content;
-    if (!content) return;
-    const size = qrData?.config.size || 256;
-    const fg = qrData?.config.fgColor || "#111827";
-    const bg = qrData?.config.bgColor || "#ffffff";
-    if (format === "png") {
-      const url = await QRCode.toDataURL(content, { width: size * 2, margin: 2, color: { dark: fg, light: bg } });
+  const downloadQR = async (format: "png" | "svg") => {
+    if (!qrRef.current) return;
+    if (format === "svg") {
+      const blob = await qrRef.current.getRawData("svg");
       const link = document.createElement("a");
-      link.download = `generadorqr-${Date.now()}.png`;
-      link.href = url;
-      link.click();
-    } else {
-      const svg = await QRCode.toString(content, { type: "svg", width: size * 2, margin: 2, color: { dark: fg, light: bg } });
-      const blob = new Blob([svg], { type: "image/svg+xml" });
-      const link = document.createElement("a");
-      link.download = `generadorqr-${Date.now()}.svg`;
+      link.download = `qrwing-${Date.now()}.svg`;
       link.href = URL.createObjectURL(blob);
       link.click();
+    } else {
+      qrRef.current.download({ name: `qrwing-${Date.now()}`, extension: "png" });
     }
   };
 
-  const copyToClipboard = async (contentOverride?: string) => {
-    const content = contentOverride || qrData?.content;
-    if (!content) return;
-    const size = qrData?.config.size || 256;
-    const fg = qrData?.config.fgColor || "#111827";
-    const bg = qrData?.config.bgColor || "#ffffff";
-    const url = await QRCode.toDataURL(content, { width: size * 2, margin: 2, color: { dark: fg, light: bg } });
-    const blob = await (await fetch(url)).blob();
+  const copyToClipboard = async () => {
+    if (!qrRef.current) return;
     try {
+      const blob = await qrRef.current.getRawData("png");
       await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch { downloadQR("png", content); }
+    } catch {
+      qrRef.current.download({ name: `qrwing-${Date.now()}`, extension: "png" });
+    }
   };
 
   return (
     <div className="max-w-4xl mx-auto">
       <div className="grid md:grid-cols-2 gap-8">
         <div>
-          <QRForm key={restoredForm ? "restored" : "fresh"} plan={plan} initialValues={restoredForm ? { type: restoredForm.type, fgColor: restoredForm.config?.fgColor, bgColor: restoredForm.config?.bgColor, size: restoredForm.config?.size, logo: restoredForm.config?.logo, ...(restoredForm.type === "text" ? { text: restoredForm.content } : {}), ...(restoredForm.type === "url" ? { url: restoredForm.content } : {}) } : undefined} onChange={setQrData} />
+          <QRForm key={restoredForm ? "restored" : "fresh"} plan={plan} initialValues={restoredForm ? (() => { const c = restoredForm.content; const cfg = restoredForm.config || {}; const t = restoredForm.type; const base = { fgColor: cfg.fgColor, bgColor: cfg.bgColor, size: cfg.size, logo: cfg.logo, gradientType: cfg.gradientType, gradientColor1: cfg.gradientColor1, gradientColor2: cfg.gradientColor2, dotsType: cfg.dotsType, cornersSquareType: cfg.cornersSquareType, cornersDotType: cfg.cornersDotType }; if (t === "url" || t === "youtube" || t === "appstore") return { ...base, type: t, ...(t === "url" ? { url: c } : t === "youtube" ? { youtubeUrl: c } : { appstoreUrl: c }) }; if (t === "text") return { ...base, type: t, text: c }; if (t === "whatsapp") { try { const u = new URL(c); return { ...base, type: t, whatsappPhone: u.pathname.replace("/", ""), whatsappMsg: u.searchParams.get("text") || "" }; } catch { return { ...base, type: t, whatsappPhone: c }; } } if (t === "phone") return { ...base, type: t, phoneNumber: c.replace("tel:", "") }; if (t === "sms") { const m = c.match(/^smsto:(.+?):(.+)$/); return { ...base, type: t, smsPhone: m ? m[1] : c.replace("smsto:", ""), smsMsg: m ? m[2] : "" }; } if (t === "location") return { ...base, type: t, locationQuery: decodeURIComponent(c.replace("https://maps.google.com/maps?q=", "")) }; if (t === "calendar") { const g = (k: string) => c.match(new RegExp(`${k}:(.+)`))?.[1]?.trim() || ""; const dt = g("DTSTART").replace(/(\d{4})(\d{2})(\d{2})T?(\d{0,2})(\d{0,2})/, (_m: string, y: string, mo: string, d: string, h: string, min: string) => `${y}-${mo}-${d}${h ? ` ${h}:${min || "00"}` : ""}`); return { ...base, type: t, calendarTitle: g("SUMMARY"), calendarDate: dt, calendarLocation: g("LOCATION"), calendarDesc: g("DESCRIPTION") }; } if (t === "telegram") { try { const u = new URL(c); return { ...base, type: t, telegramUser: u.pathname.replace("/", ""), telegramMsg: u.searchParams.get("text") || "" }; } catch { return { ...base, type: t, telegramUser: c }; } } return { ...base, type: t, text: c }; })() : undefined} onChange={setQrData} />
         </div>
 
         <div className="flex flex-col items-center justify-center gap-4">
-          <div ref={canvasRef} className="p-6 bg-white rounded-2xl shadow-lg border border-gray-200">
-            {qrData?.hasValues ? (
-              <>
-                <QRCodeCanvas value={qrData.content} size={qrData.config.size} fgColor={qrData.config.fgColor} bgColor={qrData.config.bgColor} level="H" includeMargin
-                  imageSettings={qrData.config.logo ? { src: qrData.config.logo, height: qrData.config.size * 0.25, width: qrData.config.size * 0.25, excavate: true } : undefined} />
-                <div id="qr-svg-download" style={{ display: "none" }}>
-                  <QRCodeSVG value={qrData.content} size={qrData.config.size} fgColor={qrData.config.fgColor} bgColor={qrData.config.bgColor} level="H" includeMargin
-                    imageSettings={qrData.config.logo ? { src: qrData.config.logo, height: qrData.config.size * 0.25, width: qrData.config.size * 0.25, excavate: true } : undefined} />
-                </div>
-              </>
-            ) : (
+          <div ref={canvasRef} className="p-6 bg-white rounded-2xl shadow-lg border border-gray-200" style={{ minWidth: 256, minHeight: 256 }}>
+            {!qrData?.hasValues && (
               <div className="flex items-center justify-center text-gray-400" style={{ width: 256, height: 256 }}>
                 <p className="text-sm text-center px-4">{t("placeholderQr")}</p>
               </div>
@@ -161,9 +199,9 @@ export default function QRGenerator() {
                 );
               })()}
               <div className="flex flex-wrap gap-2 justify-center">
-              <button onClick={() => withAuth(() => withPro(async () => { const c = await saveToServer(); downloadQR("png", c || undefined); }))} className="px-5 py-2.5 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition duration-75 active:scale-[0.95]">{t("downloadPng")}</button>
-              <button onClick={() => withAuth(() => withPro(async () => { const c = await saveToServer(); downloadQR("svg", c || undefined); }))} className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-75 active:scale-[0.95]">{t("downloadSvg")}</button>
-              <button onClick={() => withAuth(() => withPro(async () => { const c = await saveToServer(); copyToClipboard(c || undefined); }))} className="px-5 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-75 active:scale-[0.95]">{copied ? t("copied") : t("copy")}</button>
+              <button onClick={() => withAuth(() => withPro(async () => { await saveToServer(); downloadQR("png"); }))} className="px-5 py-2.5 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition duration-75 active:scale-[0.95]">{t("downloadPng")}</button>
+              <button onClick={() => withAuth(() => withPro(async () => { await saveToServer(); downloadQR("svg"); }))} className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-75 active:scale-[0.95]">{t("downloadSvg")}</button>
+              <button onClick={() => withAuth(() => withPro(async () => { await saveToServer(); copyToClipboard(); }))} className="px-5 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-75 active:scale-[0.95]">{copied ? t("copied") : t("copy")}</button>
               {savedOk && (
                 <a href="/dashboard" className="text-xs text-green-600 font-medium hover:underline">
                   {t("saved")} — {t("viewDashboard")}

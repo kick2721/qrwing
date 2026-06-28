@@ -4,8 +4,7 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { QRCodeSVG } from "qrcode.react";
-import QRCode from "qrcode";
+import QRCodeStyling from "qr-code-styling";
 import { useLang } from "@/context/LangContext";
 import { FREE_MAX_QR } from "@/lib/constants";
 import { parseUA } from "@/lib/ua";
@@ -26,6 +25,43 @@ interface ScanStats {
   total: number;
   daily: { date: string; count: number }[];
   recent: { scanned_at: string; ip: string; country: string; referrer: string; user_agent: string }[];
+}
+
+function qrStylingOptions(qr: QRCodeData, size: number) {
+  const fg = qr.config?.fgColor || "#111827";
+  const bg = qr.config?.bgColor || "#ffffff";
+  const opts: any = {
+    width: size, height: size, data: qr.content,
+    qrOptions: { errorCorrectionLevel: "L" as const },
+    dotsOptions: { type: qr.config?.dotsType || "square", color: fg },
+    cornersSquareOptions: { type: qr.config?.cornersSquareType || "square", color: fg },
+    cornersDotOptions: { type: qr.config?.cornersDotType || "square", color: fg },
+    backgroundOptions: { color: bg },
+  };
+  if (qr.config?.gradientType && qr.config?.gradientColor1 && qr.config?.gradientColor2) {
+    opts.dotsOptions.gradient = {
+      type: qr.config.gradientType, rotation: 0,
+      colorStops: [{ offset: 0, color: qr.config.gradientColor1 }, { offset: 1, color: qr.config.gradientColor2 }],
+    };
+    opts.dotsOptions.color = undefined;
+  }
+  if (qr.config?.logo) opts.image = qr.config.logo;
+  return opts;
+}
+
+function QRSmallPreview({ qr }: { qr: QRCodeData }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const instRef = useRef<any>(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    if (!instRef.current) {
+      instRef.current = new QRCodeStyling(qrStylingOptions(qr, 48));
+      instRef.current.append(ref.current);
+    } else {
+      instRef.current.update(qrStylingOptions(qr, 48));
+    }
+  }, [qr]);
+  return <div ref={ref} style={{ width: "100%", height: "100%" }} />;
 }
 
 export default function Dashboard() {
@@ -101,27 +137,24 @@ export default function Dashboard() {
   }
 
   async function downloadQR(qr: QRCodeData, format: "png" | "svg") {
-    if (format === "png") {
-      const url = await QRCode.toDataURL(qr.content, {
-        width: 512,
-        margin: 2,
-        color: { dark: qr.config?.fgColor || "#111827", light: qr.config?.bgColor || "#ffffff" },
-      });
+    const div = document.createElement("div");
+    div.style.position = "absolute";
+    div.style.left = "-9999px";
+    document.body.appendChild(div);
+    const opts = qrStylingOptions(qr, 512);
+    if (opts.qrOptions) opts.qrOptions.errorCorrectionLevel = "H";
+    const instance = new QRCodeStyling(opts);
+    instance.append(div);
+    if (format === "svg") {
+      const blob = await instance.getRawData("svg");
       const link = document.createElement("a");
-      link.download = `generadorqr-${qr.label || "qr"}.png`;
-      link.href = url;
+      link.download = `qrwing-${qr.label || "qr"}.svg`;
+      link.href = URL.createObjectURL(blob as Blob);
       link.click();
     } else {
-      const svg = document.querySelector(`#svg-container-${qr.id} svg`) as SVGSVGElement;
-      if (!svg) return;
-      const clone = svg.cloneNode(true) as SVGSVGElement;
-      clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-      const blob = new Blob([clone.outerHTML], { type: "image/svg+xml" });
-      const link = document.createElement("a");
-      link.download = `generadorqr-${qr.label || "qr"}.svg`;
-      link.href = URL.createObjectURL(blob);
-      link.click();
+      instance.download({ name: `qrwing-${qr.label || "qr"}`, extension: "png" });
     }
+    document.body.removeChild(div);
   }
 
   async function cancelSub() {
@@ -182,12 +215,12 @@ export default function Dashboard() {
   }
 
   function typeIcon(type: string) {
-    const icons: Record<string, string> = { url: "🔗", text: "📝", wifi: "📶", vcard: "👤", email: "📧", image: "🖼️" };
+    const icons: Record<string, string> = { url: "🔗", text: "📝", wifi: "📶", vcard: "👤", email: "📧", image: "🖼️", whatsapp: "💬", phone: "📞", sms: "💬", location: "📍", calendar: "📅", youtube: "▶️", appstore: "📱", telegram: "✈️" };
     return icons[type] || "📄";
   }
 
   function typeLabel(type: string) {
-    const labels: Record<string, string> = { url: "URL", text: "Texto", wifi: "WiFi", vcard: "vCard", email: "Email", image: "Imagen" };
+    const labels: Record<string, string> = { url: "URL", text: "Texto", wifi: "WiFi", vcard: "vCard", email: "Email", image: "Imagen", whatsapp: "WhatsApp", phone: "Teléfono", sms: "SMS", location: "Ubicación", calendar: "Evento", youtube: "YouTube", appstore: "App Store", telegram: "Telegram" };
     return labels[type] || type;
   }
 
@@ -377,10 +410,8 @@ export default function Dashboard() {
             {filteredQrs.map(qr => (
               <div key={qr.id} className={`bg-white dark:bg-gray-900 rounded-2xl border p-4 transition-colors cursor-pointer hover:border-purple-300 dark:hover:border-purple-700 ${selectedQR === qr.id ? "border-purple-500" : "border-gray-200 dark:border-gray-800"}`} onClick={() => viewStats(qr.id)}>
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 flex-shrink-0 bg-white rounded-xl p-1 border border-gray-100 dark:border-gray-700">
-                    <div id={`svg-container-${qr.id}`} style={{ width: "100%", height: "100%" }}>
-                      <QRCodeSVG value={qr.content} size={48} level="L" fgColor={qr.config?.fgColor || "#111827"} bgColor={qr.config?.bgColor || "#ffffff"} style={{ width: "100%", height: "100%" }} />
-                    </div>
+                    <div className="w-14 h-14 flex-shrink-0 bg-white rounded-xl p-1 border border-gray-100 dark:border-gray-700">
+                      <QRSmallPreview qr={qr} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium truncate">{qr.label || qr.redirect_to || qr.content}</p>
