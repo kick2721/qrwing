@@ -63,6 +63,7 @@ export default function QRGenerator() {
   const [restoredForm, setRestoredForm] = useState<Record<string, any> | null>(null);
   const [plan, setPlan] = useState("free");
   const [showLogoProModal, setShowLogoProModal] = useState(false);
+  const [saving, setSaving] = useState(false);
   const canvasRef = useRef<HTMLDivElement>(null);
   const qrRef = useRef<any>(null);
 
@@ -118,10 +119,11 @@ export default function QRGenerator() {
     window.location.href = "/auth/signin";
   };
 
-  const saveToServer = async () => {
+  const saveToServer = async (): Promise<string | null> => {
     if (!qrData?.hasValues) return null;
     setSaveError("");
     setSavedOk(false);
+    setSaving(true);
     try {
       const r = await fetch("/api/qrcodes", {
         method: "POST",
@@ -145,7 +147,17 @@ export default function QRGenerator() {
       setSavedOk(true);
       setTimeout(() => setSavedOk(false), 2000);
       return result.content as string;
-    } catch { setSaveError("error"); return null; }
+    } catch { setSaveError("error"); return null; } finally { setSaving(false); }
+  };
+
+  const handleSave = async (data: QRFormData) => {
+    if (!session?.user) {
+      try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
+      setShowLoginPrompt(true);
+      return;
+    }
+    setQrData(data);
+    await saveToServer();
   };
 
   const downloadQR = async (format: "png" | "svg") => {
@@ -177,7 +189,7 @@ export default function QRGenerator() {
     <div className="max-w-4xl mx-auto">
       <div className="grid md:grid-cols-2 gap-8">
         <div>
-          <QRForm key={restoredForm ? "restored" : "fresh"} plan={plan} initialValues={restoredForm ? (() => { const c = restoredForm.content; const cfg = restoredForm.config || {}; const t = restoredForm.type; const base = { fgColor: cfg.fgColor, bgColor: cfg.bgColor, size: cfg.size, logo: cfg.logo, gradientType: cfg.gradientType, gradientColor1: cfg.gradientColor1, gradientColor2: cfg.gradientColor2, dotsType: cfg.dotsType, cornersSquareType: cfg.cornersSquareType, cornersDotType: cfg.cornersDotType }; if (t === "url" || t === "youtube" || t === "appstore") return { ...base, type: t, ...(t === "url" ? { url: c } : t === "youtube" ? { youtubeUrl: c } : { appstoreUrl: c }) }; if (t === "text") return { ...base, type: t, text: c }; if (t === "whatsapp") { try { const u = new URL(c); return { ...base, type: t, whatsappPhone: u.pathname.replace("/", ""), whatsappMsg: u.searchParams.get("text") || "" }; } catch { return { ...base, type: t, whatsappPhone: c }; } } if (t === "phone") return { ...base, type: t, phoneNumber: c.replace("tel:", "") }; if (t === "sms") { const m = c.match(/^smsto:(.+?):(.+)$/); return { ...base, type: t, smsPhone: m ? m[1] : c.replace("smsto:", ""), smsMsg: m ? m[2] : "" }; } if (t === "location") return { ...base, type: t, locationQuery: decodeURIComponent(c.replace("https://maps.google.com/maps?q=", "")) }; if (t === "calendar") { const g = (k: string) => c.match(new RegExp(`${k}:(.+)`))?.[1]?.trim() || ""; const dt = g("DTSTART").replace(/(\d{4})(\d{2})(\d{2})T?(\d{0,2})(\d{0,2})/, (_m: string, y: string, mo: string, d: string, h: string, min: string) => `${y}-${mo}-${d}${h ? ` ${h}:${min || "00"}` : ""}`); return { ...base, type: t, calendarTitle: g("SUMMARY"), calendarDate: dt, calendarLocation: g("LOCATION"), calendarDesc: g("DESCRIPTION") }; } if (t === "telegram") { try { const u = new URL(c); return { ...base, type: t, telegramUser: u.pathname.replace("/", ""), telegramMsg: u.searchParams.get("text") || "" }; } catch { return { ...base, type: t, telegramUser: c }; } } return { ...base, type: t, text: c }; })() : undefined} onChange={setQrData} />
+          <QRForm key={restoredForm ? "restored" : "fresh"} plan={plan} initialValues={restoredForm ? (() => { const c = restoredForm.content; const cfg = restoredForm.config || {}; const t = restoredForm.type; const base = { fgColor: cfg.fgColor, bgColor: cfg.bgColor, size: cfg.size, logo: cfg.logo, gradientType: cfg.gradientType, gradientColor1: cfg.gradientColor1, gradientColor2: cfg.gradientColor2, dotsType: cfg.dotsType, cornersSquareType: cfg.cornersSquareType, cornersDotType: cfg.cornersDotType }; if (t === "url" || t === "youtube" || t === "appstore") return { ...base, type: t, ...(t === "url" ? { url: c } : t === "youtube" ? { youtubeUrl: c } : { appstoreUrl: c }) }; if (t === "text") return { ...base, type: t, text: c }; if (t === "whatsapp") { try { const u = new URL(c); return { ...base, type: t, whatsappPhone: u.pathname.replace("/", ""), whatsappMsg: u.searchParams.get("text") || "" }; } catch { return { ...base, type: t, whatsappPhone: c }; } } if (t === "phone") return { ...base, type: t, phoneNumber: c.replace("tel:", "") }; if (t === "sms") { const m = c.match(/^smsto:(.+?):(.+)$/); return { ...base, type: t, smsPhone: m ? m[1] : c.replace("smsto:", ""), smsMsg: m ? m[2] : "" }; } if (t === "location") return { ...base, type: t, locationQuery: decodeURIComponent(c.replace("https://maps.google.com/maps?q=", "")) }; if (t === "calendar") { const g = (k: string) => c.match(new RegExp(`${k}:(.+)`))?.[1]?.trim() || ""; const dt = g("DTSTART").replace(/(\d{4})(\d{2})(\d{2})T?(\d{0,2})(\d{0,2})/, (_m: string, y: string, mo: string, d: string, h: string, min: string) => `${y}-${mo}-${d}${h ? ` ${h}:${min || "00"}` : ""}`); return { ...base, type: t, calendarTitle: g("SUMMARY"), calendarDate: dt, calendarLocation: g("LOCATION"), calendarDesc: g("DESCRIPTION") }; } if (t === "telegram") { try { const u = new URL(c); return { ...base, type: t, telegramUser: u.pathname.replace("/", ""), telegramMsg: u.searchParams.get("text") || "" }; } catch { return { ...base, type: t, telegramUser: c }; } } return { ...base, type: t, text: c }; })() : undefined} onChange={setQrData} onSubmit={handleSave} saving={saving} />
         </div>
 
         <div className="flex flex-col items-center justify-center gap-4">
@@ -199,9 +211,9 @@ export default function QRGenerator() {
                 );
               })()}
               <div className="flex flex-wrap gap-2 justify-center">
-              <button onClick={() => withAuth(() => withPro(async () => { await saveToServer(); downloadQR("png"); }))} className="px-5 py-2.5 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition duration-75 active:scale-[0.95]">{t("downloadPng")}</button>
-              <button onClick={() => withAuth(() => withPro(async () => { await saveToServer(); downloadQR("svg"); }))} className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-75 active:scale-[0.95]">{t("downloadSvg")}</button>
-              <button onClick={() => withAuth(() => withPro(async () => { await saveToServer(); copyToClipboard(); }))} className="px-5 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-75 active:scale-[0.95]">{copied ? t("copied") : t("copy")}</button>
+              <button onClick={() => withPro(() => downloadQR("png"))} className="px-5 py-2.5 bg-purple-600 text-white rounded-xl font-medium hover:bg-purple-700 transition duration-75 active:scale-[0.95]">{t("downloadPng")}</button>
+              <button onClick={() => withPro(() => downloadQR("svg"))} className="px-5 py-2.5 bg-gray-100 dark:bg-gray-800 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition duration-75 active:scale-[0.95]">{t("downloadSvg")}</button>
+              <button onClick={() => withPro(() => copyToClipboard())} className="px-5 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition duration-75 active:scale-[0.95]">{copied ? t("copied") : t("copy")}</button>
               {savedOk && (
                 <a href="/dashboard" className="text-xs text-green-600 font-medium hover:underline">
                   {t("saved")} — {t("viewDashboard")}
